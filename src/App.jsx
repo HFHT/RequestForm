@@ -4,7 +4,7 @@ import './App.css';
 function App() {
   return (
     <p>
-      Cleanedup React App
+      Habitat for Humanity Home Repair Request Application Placeholder
     </p>
   );
 }
