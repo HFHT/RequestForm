@@ -3,10 +3,16 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-
+let allCookies = document.cookie
+var language = window.navigator.language
+var languages = window.navigator.languages
+console.log(allCookies, language, languages)
+document.cookie = 'HFHT'
+document.documentElement.lang = 'es-MX'
+console.log(document.documentElement.lang)
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <App language={language.substring(0,2)}/>
   </React.StrictMode>,
   document.getElementById('root')
 );
