@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { CircularProgress, ToggleButton, ToggleButtonGroup, Stack, Paper, useMediaQuery } from '@mui/material'
 import { styled } from '@mui/material/styles';
+import Autocomplete from "react-google-autocomplete";
 import './App.css';
 import { MongoAPI } from './services/MongoDBAPI'
 
@@ -15,17 +16,22 @@ const dbDate = () => {
 const Item = styled(Paper)(({ theme }) => ({
   ...theme.typography.body2,
   padding: theme.spacing(1),
-//  textAlign: 'center',
+  //  textAlign: 'center',
   color: theme.palette.text.secondary,
 }));
 
 function App(props) {
+  const zipCodes =[
+    85705, 85745P, 85702, 
+  ]
   const matches = useMediaQuery('(min-width:600px)');
   const [questions, setQuestions] = useState([]);
   const [language, setLanguage] = useState(props.language);
   const [yesTranslate, setYesTranslate] = useState(language === 'en' ? "yes" : "sí")
   const [answer, setAnswer] = useState('')
   const [whichQuestion, setWhichQuestion] = useState(0)
+  const [addressInfo, setAddressInfo] = useState({})
+  const [showAddress, setShowAddress] = useState(false)
   const handleChange = (event, language) => {
     setLanguage(language);
     setYesTranslate(language === 'en' ? "yes" : "sí")
@@ -76,25 +82,42 @@ function App(props) {
               <h3>Select language / Seleccione el idioma</h3>
             </Item>
           </Stack>
-          <h1>{/*questions[0].Title[language]*/}</h1>
-          <Item elevation={0}><h3>{questions[0].Desc[language]}</h3></Item>
-          <Stack direction="row" spacing={2} >
-            <Item>
-              <ToggleButtonGroup
-                orientation={matches ? "horizontal" : "vertical"}
-                color="primary"
-                value={answer}
-                exclusive
-                onChange={handleAnswer}
-              >
-                <ToggleButton value={`${yesTranslate}`}>{yesTranslate}</ToggleButton>
-                <ToggleButton value="no">no</ToggleButton>
-              </ToggleButtonGroup>
-            </Item>
-            <Item>
-              <h3>{questions[0].Questions[whichQuestion].q[language]}</h3>
-            </Item>
-          </Stack>
+          {questions[0].Questions[whichQuestion].action === "Address" ?
+            <div>
+              <Item elevation={0}><h3>Provide Contact Information</h3></Item>
+              <Autocomplete
+                apiKey={'AIzaSyBlaLkYq-YAJECTBOoiW8qzfLB25T2H0TQ'}
+                options={{
+                  types: ["address"],
+                  componentRestrictions: { country: "us" },
+                }}
+                onPlaceSelected={(place) => {
+                  console.log(place);
+                }}
+              />
+            </div>
+            :
+            <div>
+              <Item elevation={0}><h3>{questions[0].Desc[language]}</h3></Item>
+              <Stack direction="row" spacing={2} >
+                <Item elevation={0}>
+                  <ToggleButtonGroup
+                    orientation={matches ? "horizontal" : "vertical"}
+                    color="primary"
+                    value={answer}
+                    exclusive
+                    onChange={handleAnswer}
+                  >
+                    <ToggleButton value={`${yesTranslate}`}>{yesTranslate}</ToggleButton>
+                    <ToggleButton value="no">no</ToggleButton>
+                  </ToggleButtonGroup>
+                </Item>
+                <Item>
+                  <h3>{questions[0].Questions[whichQuestion].q[language]}</h3>
+                </Item>
+              </Stack>
+            </div>
+          }
         </div>
       }
     </div>
