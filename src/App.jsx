@@ -21,9 +21,6 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 function App(props) {
-  const zipCodes =[
-    85705, 85745P, 85702, 
-  ]
   const matches = useMediaQuery('(min-width:600px)');
   const [questions, setQuestions] = useState([]);
   const [language, setLanguage] = useState(props.language);
