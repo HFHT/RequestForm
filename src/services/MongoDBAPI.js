@@ -7,8 +7,10 @@ export async function MongoAPI( req, setter ) {
         method: "GET",
         headers: headers
     };
-    
-    return fetch(`${process.env.REACT_APP_AZURE_FUNC_URL}api/HFHTMongoAPI?req=${JSON.stringify(req)}`, options)
+
+    const baseURL = `${process.env.REACT_APP_AZURE_FUNC_URL}`;
+
+    return fetch(`${baseURL}/api/HFHTMongoAPI?req=${JSON.stringify(req)}`, options)
         .then(response => response.json())
         .then(data => {setter(data)})
         .catch(error => console.log(error));
