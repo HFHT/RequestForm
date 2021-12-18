@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+require('dotenv').config()
 let allCookies = document.cookie
 var language = window.navigator.language
 var languages = window.navigator.languages
