@@ -1,16 +1,13 @@
 import { useState, useEffect, forwardRef } from 'react';
-import { FormGroup, FormControlLabel, Checkbox, List, ListItem, ListItemIcon, ListItemText, ListSubheader, Switch, CircularProgress, ToggleButton, ToggleButtonGroup, Stack, Paper, Input, useMediaQuery } from '@mui/material'
-import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
-import CheckIcon from '@mui/icons-material/Check';
-import CancelIcon from '@mui/icons-material/Cancel';
+import { FormGroup, FormControlLabel, Checkbox, List, Divider, ListItem, ListItemIcon, ListItemText, ListSubheader, Switch, CircularProgress, ToggleButton, ToggleButtonGroup, Stack, Paper, Input, useMediaQuery } from '@mui/material'
+import { Check as CheckIcon, Cancel as CancelIcon, NotInterested as NotInterestedIcon } from '@mui/icons-material';
+
 import { styled } from '@mui/material/styles';
 import Autocomplete from "react-google-autocomplete";
 import './App.css';
 import { MongoAPI } from './services/MongoDBAPI'
 
 const dbDate = () => {
-  /* fix the following for time zone */
-  //  return new Date().toISOString().split('T')[0]
   var dateObj = new Date()
   dateObj.setHours(dateObj.getHours() - 7)
   return dateObj.toISOString().substr(0, 10)
@@ -135,7 +132,7 @@ function App(props) {
         <div>
           <SelLanguage language={language} onChange={handleChange} matches={matches} />
           <List
-            sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
+
             subheader={<ListSubheader><h3>{questions[0].Desc[language]}</h3></ListSubheader>}
           >
             {questions[0].Questions.map((question, i) => {
@@ -147,7 +144,7 @@ function App(props) {
                   {question.action === 'Done' && <CheckEligible question={question} language={language} onChange={handleRepairSel} show={showQuestion[question.qn]} matches={matches} />}
                 </div>
               )
-            })}
+            }).reverse()}
           </List>
         </div>
       }
@@ -161,33 +158,40 @@ const Question = ({ question, language, answers, translate, onChange, show, matc
   console.log(question, answers, translate, onChange, show)
   return (<div>
     {show &&
-      <ListItem >
-        <ListItemIcon>
-          {console.log(answers[question.qn])}
-          {answers[question.qn] ? (
-            question[answers[question.qn]] === 'r' ?
-              <CancelIcon /> :
-              <CheckIcon />
-          ) :
-            <QuestionMarkIcon />
+      <>
+        <ListItem
+          sx={answers[question.qn] ? { backgroundColor: '#cddbd2' } : ''}
+          selected={!answers[question.qn]}
+        >
+          {!answers[question.qn] &&
+            <Item elevation={0}>
+              <ToggleButtonGroup
+                orientation={matches ? "horizontal" : "vertical"}
+                color="primary"
+                value={answers[question.qn]}
+                disabled={answers[question.qn]}
+                exclusive
+                onChange={onChange}
+              >
+                <ToggleButton value={`${translate}`} >{translate}</ToggleButton>
+                <ToggleButton value="no" >no</ToggleButton>
+              </ToggleButtonGroup>
+            </Item>
           }
-        </ListItemIcon>
-        <Item elevation={0}>
-          <ToggleButtonGroup
-            orientation={matches ? "horizontal" : "vertical"}
-            color="primary"
-            value={answers[question.qn]}
-            disabled={answers[question.qn]}
-            exclusive
-            onChange={onChange}
-          >
-            <ToggleButton value={`${translate}`}>{translate}</ToggleButton>
-            <ToggleButton value="no">no</ToggleButton>
-          </ToggleButtonGroup>
-        </Item>
-
-        <ListItemText primary={question.q[language]} />
-      </ListItem>
+          <ListItemIcon>
+            {console.log(answers[question.qn])}
+            {answers[question.qn] ? (
+              question[answers[question.qn]] === 'r' ?
+                <CancelIcon /> :
+                <CheckIcon />
+            ) :
+              null
+            }
+          </ListItemIcon>
+          <ListItemText primary={question.q[language]} />
+        </ListItem>
+        <Divider />
+      </>
     }
   </div>
   )
