@@ -1,6 +1,6 @@
 import { useState, useEffect, forwardRef } from 'react';
-import { FormGroup, FormControlLabel, Checkbox, List, Divider, ListItem, ListItemIcon, ListItemText, ListSubheader, Switch, CircularProgress, ToggleButton, ToggleButtonGroup, Stack, Paper, Input, useMediaQuery } from '@mui/material'
-import { Check as CheckIcon, Cancel as CancelIcon, NotInterested as NotInterestedIcon, KeyboardReturnTwoTone } from '@mui/icons-material';
+import { Button, FormGroup, FormControlLabel, Grid, Snackbar, Alert as MuiAlert, Checkbox, List, Divider, ListItem, ListItemIcon, ListItemText, ListSubheader, Switch, CircularProgress, ToggleButton, ToggleButtonGroup, Stack, Paper, Input, useMediaQuery } from '@mui/material'
+import { Task as TaskIcon, Check as CheckIcon, Cancel as CancelIcon, NotInterested as NotInterestedIcon, KeyboardReturnTwoTone } from '@mui/icons-material';
 
 import { styled } from '@mui/material/styles';
 import AutoComplete from "react-google-autocomplete";
@@ -21,6 +21,10 @@ const Item = styled(Paper)(({ theme }) => ({
   //  textAlign: 'center',
   color: theme.palette.text.secondary,
 }));
+
+const Alert = forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const isCounty = (googleAddrObj) => {
   var result = googleAddrObj.address_components.filter(obj => obj.types[0] === "administrative_area_level_2")
@@ -47,6 +51,7 @@ async function setRepairState(repairList, currentState, setter) {
 
 function App(props) {
   const matches = useMediaQuery('(min-width:600px)');
+  const [hasAlert, setHasAlert] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState([]);
   const [repairs, setRepairs] = useState({});
@@ -72,6 +77,14 @@ function App(props) {
     setAnswers(answers)
     saveAnswer(event.target.value)
   };
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setHasAlert(null);
+  };
+
   const saveAnswer = (answer) => {
     setAnswer('');
     if (questions[0].Questions[whichQuestion][answer] === 'r') { console.log("Reject") }
@@ -123,10 +136,11 @@ function App(props) {
           {questions[0].Questions[whichQuestion].action === '' &&
             <Question question={questions[0].Questions[whichQuestion]} header={questions[0].Desc[language]} language={language} translate={yesTranslate} onChange={handleAnswer} matches={matches} />}
           {questions[0].Questions[whichQuestion].action === "County" &&
-            <div>
-              <Item elevation={0}><h3>Provide Address of the Home</h3></Item>
+            <div style={{ width: "auto" }}>
+              <Item elevation={0}><h3>{language === 'en' ? 'Provide the address of the home' : 'Proporcione la dirección de la casa'}</h3></Item>
               <AutoComplete
-                apiKey={'AIzaSyBlaLkYq-YAJECTBOoiW8qzfLB25T2H0TQ'}
+                apiKey={`${process.env.REACT_APP_GOOGLE_APIKEY}`}
+                placeholder={language === 'en' ? 'Your address...' : 'Su dirección...'}
                 options={{
                   types: ["address"],
                   componentRestrictions: { country: "us" },
@@ -135,9 +149,16 @@ function App(props) {
                   console.log(selected)
                   setAddressInfo(selected)
                   console.log(selected.hasOwnProperty('name'))
-                  console.log(isCounty(selected))
-                  console.log(isCity(selected, zipCodes[0]))
-                  saveAnswer(isCity(selected, zipCodes[0]))
+                  if (selected.hasOwnProperty('name')) {
+                    setHasAlert(language === 'en' ? 'Please reenter the address and select it from the list!' : '¡Vuelva a ingresar la dirección y selecciónela de la lista!')
+                  } else {
+                    setHasAlert(null);
+                    console.log(isCounty(selected))
+                    console.log(isCity(selected, zipCodes[0]))
+                    answers[whichQuestion] = isCounty(selected, zipCodes[0])
+                    setAnswers(answers)
+                    saveAnswer(isCity(selected, zipCodes[0]))
+                  }
                 }}
               />
             </div>
@@ -145,6 +166,11 @@ function App(props) {
           {questions[0].Questions[whichQuestion].action === "RepairList" &&
             <RepairList repairList={questions[0].RepairList} language={language} onChange={handleRepairSel} matches={matches} />
           }
+          <Snackbar open={hasAlert!==null} autoHideDuration={7000} onClose={handleClose}>
+            <Alert onClose={handleClose} severity="warning" sx={{ width: '100%' }}>
+              {hasAlert}
+            </Alert>
+          </Snackbar>
           <AnswerList answerList={answerList} language={language} />
         </div>
       }
@@ -153,7 +179,7 @@ function App(props) {
 }
 export default App;
 
-const AnswerList = ({ answerList, language }) => {
+const AnswerList =  ({ answerList, language }) => {
   console.log(answerList, language)
   return (
     <List>
@@ -225,17 +251,24 @@ const RepairList = ({ repairList, onChange, language, matches }) => {
   console.log(onChange)
   return (
     <div>
-      <Item elevation={0}><h3>Select Repairs</h3></Item>
+      <Button variant="contained" color="primary" endIcon={<TaskIcon />} sx={matches ? {marginLeft: '4px'} : {}}>
+      {language === 'en' ? 'Select the needed repairs -> Click when Done' : 'Seleccione las reparaciones necesarias -> Haga clic cuando esté listo'} 
+      </Button>
       <FormGroup>
+        <Grid container rowSpacing={1} columnSpacing={1} sx={{paddingLeft: '8px'}}>
         {repairList.map((item, i) => {
           return (
+            <Grid key={i} item xs={12} sm={4} md={4} lg={4} xl={4} >
             <FormControlLabel key={i} control={
               <Switch checked={false} onChange={onChange} name={item} />
             }
               label={item}
-            />)
+            />
+            </Grid>
+            )
         }
         )}
+        </Grid>
       </FormGroup>
     </div>
   )
