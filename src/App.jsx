@@ -1,13 +1,15 @@
 import { useState, useEffect, forwardRef } from 'react';
 import { FormGroup, FormControlLabel, Checkbox, List, Divider, ListItem, ListItemIcon, ListItemText, ListSubheader, Switch, CircularProgress, ToggleButton, ToggleButtonGroup, Stack, Paper, Input, useMediaQuery } from '@mui/material'
-import { Check as CheckIcon, Cancel as CancelIcon, NotInterested as NotInterestedIcon } from '@mui/icons-material';
+import { Check as CheckIcon, Cancel as CancelIcon, NotInterested as NotInterestedIcon, KeyboardReturnTwoTone } from '@mui/icons-material';
 
 import { styled } from '@mui/material/styles';
-import Autocomplete from "react-google-autocomplete";
+import AutoComplete from "react-google-autocomplete";
 import './App.css';
 import { MongoAPI } from './services/MongoDBAPI'
 
 const dbDate = () => {
+  /* fix the following for time zone */
+  //  return new Date().toISOString().split('T')[0]
   var dateObj = new Date()
   dateObj.setHours(dateObj.getHours() - 7)
   return dateObj.toISOString().substr(0, 10)
@@ -34,44 +36,26 @@ const isCity = (googleAddrObj, zipCodeObj) => {
   console.log(zipInfo)
   return (zipInfo.length === 0 ? 'no' : (zipInfo[0].CityOfTucson === 'P' ? 'ck' : 'no'))
 }
+
 async function setRepairState(repairList, currentState, setter) {
   repairList.map((repair) => {
     console.log(currentState)
-    return (setter(currentState[repair] = false))
+    setter(currentState[repair] = false)
   })
-
+  return (currentState)
 }
 
 function App(props) {
-  const gilad = true
-  const AutoCompleteComponent = forwardRef((props, ref) =>
-    <Autocomplete  {...props} ref={ref}
-      apiKey={`${process.env.REACT_APP_GOOGLE_APIKEY}`}
-      placeholder={language === 'en' ? 'Your address...' : 'Su dirección...'}
-      options={{
-        types: ["address"],
-        componentRestrictions: { country: "us" },
-      }}
-      onPlaceSelected={(selected) => {
-        console.log(selected)
-        console.log(selected.hasOwnProperty('name'))
-        console.log(isCounty(selected))
-        console.log(isCity(selected, zipCodes[0]))
-        saveAnswer(isCity(selected, zipCodes[0]))
-      }
-      }
-    />
-  )
   const matches = useMediaQuery('(min-width:600px)');
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState([]);
-  const [showQuestion, setShowQuestion] = useState([true])
   const [repairs, setRepairs] = useState({});
   const [zipCodes, setZipCodes] = useState([]);
   const [language, setLanguage] = useState(props.language);
   const [yesTranslate, setYesTranslate] = useState(language === 'en' ? "yes" : "sí")
   const [answer, setAnswer] = useState('')
-  const [whichQuestion, setWhichQuestion] = useState("0")
+  const [answerList, setAnswerList] = useState([]);
+  const [whichQuestion, setWhichQuestion] = useState(0)
   const [addressInfo, setAddressInfo] = useState({})
   const [showAddress, setShowAddress] = useState(false)
   const handleChange = (event, language) => {
@@ -90,10 +74,13 @@ function App(props) {
   };
   const saveAnswer = (answer) => {
     setAnswer('');
-    questions[0].Questions[whichQuestion][answer] === 'r' ? console.log("Reject") :
+    if (questions[0].Questions[whichQuestion][answer] === 'r') { console.log("Reject") }
+    else {
       setWhichQuestion(questions[0].Questions[whichQuestion][answer])
-    showQuestion[questions[0].Questions[whichQuestion][answer]] = true
-    setShowQuestion(showQuestion)
+      const thisAnswer = questions[0].Questions[whichQuestion].f
+      answerList.push(thisAnswer)
+      setAnswerList(answerList)
+    }
     console.log(whichQuestion)
   };
 
@@ -111,15 +98,17 @@ function App(props) {
       await MongoAPI({ method: 'max', db: 'HomeRepairApp', collection: 'Questions', find: "Version", limit: 1 }, setQuestions)
       await MongoAPI({ method: 'find', db: 'HomeRepairApp', collection: 'ZipCodes', find: { "_id": 0 } }, setZipCodes)
     }
-    try {
-      getQuestions()
-    }
-    catch { console.log('network error') }
+    getQuestions()
   }, [])
 
   useEffect(() => {
     if (questions.length > 0) {
-      setRepairState(questions[0].RepairList, repairs, setRepairs)
+      questions[0].RepairList.map((repair) => {
+        const repairSave = repairs
+        repairSave[repair] = false
+        console.log(repairSave)
+        setRepairs(repairSave)
+      })
       console.log(questions[0].RepairList)
     }
   }, [questions])
@@ -131,126 +120,60 @@ function App(props) {
       {(questions.length === 0) ? <CircularProgress /> :
         <div>
           <SelLanguage language={language} onChange={handleChange} matches={matches} />
-          <List
-
-            subheader={<ListSubheader><h3>{questions[0].Desc[language]}</h3></ListSubheader>}
-          >
-            {questions[0].Questions.map((question, i) => {
-              return (
-                <div key={question.qn}>
-                  {question.action === '' && <Question question={question} language={language} answers={answers} translate={yesTranslate} onChange={handleAnswer} show={showQuestion[question.qn]} matches={matches} />}
-                  {question.action === 'County' && <Address AutoCompleteComponent={AutoCompleteComponent} show={showQuestion[question.qn]} />}
-                  {question.action === 'RepairList' && <RepairList question={question} repairList={questions[0].RepairList} language={language} onChange={handleRepairSel} show={showQuestion[question.qn]} matches={matches} />}
-                  {question.action === 'Done' && <CheckEligible question={question} language={language} onChange={handleRepairSel} show={showQuestion[question.qn]} matches={matches} />}
-                </div>
-              )
-            }).reverse()}
-          </List>
+          {questions[0].Questions[whichQuestion].action === '' &&
+            <Question question={questions[0].Questions[whichQuestion]} header={questions[0].Desc[language]} language={language} translate={yesTranslate} onChange={handleAnswer} matches={matches} />}
+          {questions[0].Questions[whichQuestion].action === "County" &&
+            <div>
+              <Item elevation={0}><h3>Provide Address of the Home</h3></Item>
+              <AutoComplete
+                apiKey={'AIzaSyBlaLkYq-YAJECTBOoiW8qzfLB25T2H0TQ'}
+                options={{
+                  types: ["address"],
+                  componentRestrictions: { country: "us" },
+                }}
+                onPlaceSelected={(selected) => {
+                  console.log(selected)
+                  setAddressInfo(selected)
+                  console.log(selected.hasOwnProperty('name'))
+                  console.log(isCounty(selected))
+                  console.log(isCity(selected, zipCodes[0]))
+                  saveAnswer(isCity(selected, zipCodes[0]))
+                }}
+              />
+            </div>
+          }
+          {questions[0].Questions[whichQuestion].action === "RepairList" &&
+            <RepairList repairList={questions[0].RepairList} language={language} onChange={handleRepairSel} matches={matches} />
+          }
+          <AnswerList answerList={answerList} language={language} />
         </div>
       }
     </div>
-  );
+  )
 }
-
 export default App;
 
-const Question = ({ question, language, answers, translate, onChange, show, matches }) => {
-  console.log(question, answers, translate, onChange, show)
-  return (<div>
-    {show &&
-      <>
-        <ListItem
-          sx={answers[question.qn] ? { backgroundColor: '#cddbd2' } : ''}
-          selected={!answers[question.qn]}
-        >
-          {!answers[question.qn] &&
-            <Item elevation={0}>
-              <ToggleButtonGroup
-                orientation={matches ? "horizontal" : "vertical"}
-                color="primary"
-                value={answers[question.qn]}
-                disabled={answers[question.qn]}
-                exclusive
-                onChange={onChange}
-              >
-                <ToggleButton value={`${translate}`} >{translate}</ToggleButton>
-                <ToggleButton value="no" >no</ToggleButton>
-              </ToggleButtonGroup>
-            </Item>
-          }
-          <ListItemIcon>
-            {console.log(answers[question.qn])}
-            {answers[question.qn] ? (
-              question[answers[question.qn]] === 'r' ?
-                <CancelIcon /> :
-                <CheckIcon />
-            ) :
-              null
-            }
-          </ListItemIcon>
-          <ListItemText primary={question.q[language]} />
-        </ListItem>
-        <Divider />
-      </>
-    }
-  </div>
-  )
-}
-
-const Address = ({ AutoCompleteComponent, show }) => {
+const AnswerList = ({ answerList, language }) => {
+  console.log(answerList, language)
   return (
-    <div>
-      {show &&
-        <ListItem >
-          <div style={{ width: "250px" }}>
-            <Input
-              fullWidth
-              color="secondary"
-              inputComponent={AutoCompleteComponent}
-            />
-          </div>
-        </ListItem>
-      }
-    </div>
-  )
-}
-
-const RepairList = ({ question, repairList, onChange, language, show, matches }) => {
-  console.log(question, onChange, show)
-  return (
-    <div>
-      {show &&
-        <ListItem>
-          <Item elevation={0}><h3>Select Repairs</h3></Item>
-          <FormGroup>
-            {repairList.map((item, i) => {
-              return (
-                <FormControlLabel key={i} control={
-                  <Switch checked={false} onChange={onChange} name={item} />
-                }
-                  label={item}
-                />)
-            }
-            )}
-          </FormGroup>
-
-        </ListItem>}
-    </div>
-  )
-}
-
-const CheckEligible = ({ show }) => {
-  return (
-    <div>
-      {show &&
-        <h3>Check eligibility....</h3>
-      }
-    </div>
+    <List>
+      {answerList.map((answer, i) => {
+        return (
+          answer[language] &&
+          <ListItem key={i} sx={{ backgroundColor: '#cddbd2' }}>
+            <ListItemIcon>
+              <CheckIcon />
+            </ListItemIcon>
+            <ListItemText primary={answer[language]} />
+            <Divider />
+          </ListItem>
+        )
+      })}
+    </List>
   )
 }
 
 const SelLanguage = ({ language, onChange, matches }) => {
-
   return (
     <Stack direction="row" spacing={2} >
       <Item elevation={0}>
@@ -270,5 +193,67 @@ const SelLanguage = ({ language, onChange, matches }) => {
       </Item>
     </Stack>
 
+  )
+}
+
+const Question = ({ question, header, language, translate, onChange, matches }) => {
+  return (
+    <div>
+      <Item elevation={0}><h3>{header}</h3></Item>
+      <Stack direction="row" spacing={2} >
+        <Item elevation={0}>
+          <ToggleButtonGroup
+            orientation={matches ? "horizontal" : "vertical"}
+            color="primary"
+            value=""
+            exclusive
+            onChange={onChange}
+          >
+            <ToggleButton value={`${translate}`}>{translate}</ToggleButton>
+            <ToggleButton value="no">no</ToggleButton>
+          </ToggleButtonGroup>
+        </Item>
+        <Item>
+          <h3>{question.q[language]}</h3>
+        </Item>
+      </Stack>
+    </div>
+  )
+}
+
+const RepairList = ({ repairList, onChange, language, matches }) => {
+  console.log(onChange)
+  return (
+    <div>
+      <Item elevation={0}><h3>Select Repairs</h3></Item>
+      <FormGroup>
+        {repairList.map((item, i) => {
+          return (
+            <FormControlLabel key={i} control={
+              <Switch checked={false} onChange={onChange} name={item} />
+            }
+              label={item}
+            />)
+        }
+        )}
+      </FormGroup>
+    </div>
+  )
+}
+
+const Address = ({ setter }) => {
+  return (
+    <div>
+    </div>
+  )
+}
+
+const CheckEligible = ({ show }) => {
+  return (
+    <div>
+      {show &&
+        <h3>Check eligibility....</h3>
+      }
+    </div>
   )
 }
