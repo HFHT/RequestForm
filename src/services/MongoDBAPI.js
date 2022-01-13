@@ -16,7 +16,7 @@ export async function MongoAPI( req, setter ) {
 
     return fetch(`${baseURL}/api/HFHTMongoAPI?req=${JSON.stringify(req)}`, options)
         .then(response => response.json())
-        .then(data => {setter(data)})
+        .then(data => {setter(data[0])})
         .catch(error => console.log(error));
 
 }
