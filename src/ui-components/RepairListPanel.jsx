@@ -9,7 +9,7 @@ const listRepairs = (repairs) => {
     return (theList)
 }
 
-export default function RepairListPanel({ repairs, setRepairs, repairsDone, language, matches }) {
+export default function RepairListPanel({ repairs, setRepairs, setSelectedRepairs, language, matches }) {
     const [hasAlert, setHasAlert] = useState(null);
 
     const handleRepairSel = ({ event, repairs, thisRepair }) => {
@@ -25,7 +25,7 @@ export default function RepairListPanel({ repairs, setRepairs, repairsDone, lang
             console.log('setHasAlert')
             setHasAlert(language === 'en' ? 'You must select one or more repairs!' : '¡Debe seleccionar una o más reparaciones!')
         } else {
-            repairsDone(selectedRepairs)
+            setSelectedRepairs(selectedRepairs)
         }
     }
     return (

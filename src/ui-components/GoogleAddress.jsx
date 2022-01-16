@@ -7,17 +7,18 @@ import { isCounty } from '../services/IsCounty'
 import { Item } from './Item';
 import ErrorTag from './ErrorTag';
 
-export default function GoogleAddress({ language, zipCodes, addressInfo, setAddressInfo, handleAddress }) {
+export default function GoogleAddress({ language, zipCodes, addressInfo, setAddressInfo, handleAnswer, handleAddress }) {
     const [hasAlert, setHasAlert] = useState(null)
-//    const [cityCheck, setCityCheck] = useState(null)
-//    const [countyCheck, setCountyCheck] = useState(null)
-//    const [cityYesNo, setCityYesNo] = useState(null)
-//    const [countyYesNo, setCountyYesNo] = useState(null)
+    //    const [cityCheck, setCityCheck] = useState(null)
+    //    const [countyCheck, setCountyCheck] = useState(null)
+    //    const [cityYesNo, setCityYesNo] = useState(null)
+    //    const [countyYesNo, setCountyYesNo] = useState(null)
 
     useEffect(() => {
-        Object.keys(addressInfo).length !== 0 &&
-            isCity(addressInfo, zipCodes)
-        handleAddress({ ansKey: "City", ansValue: isCity(addressInfo, zipCodes) })
+        if (Object.keys(addressInfo).length == 0) { return }
+        handleAnswer({ mode: null, ansKey: "City", clientAns: isCity(addressInfo, zipCodes), reject: [], rejectMsg: null, skip: {} })
+        handleAnswer({ mode: null, ansKey: "County", clientAns: isCounty(addressInfo), reject: [], rejectMsg: null, skip: {} })
+        handleAddress({ county: isCounty(addressInfo), city: isCity(addressInfo, zipCodes) })
     }, [addressInfo])
     return (
         <>
@@ -35,12 +36,12 @@ export default function GoogleAddress({ language, zipCodes, addressInfo, setAddr
                             setHasAlert(language === 'en' ? 'Please reenter the address and select it from the list!' : '¡Vuelva a ingresar la dirección y selecciónela de la lista!')
                         } else {
                             setHasAlert(null);
-                            handleAddress({ ansKey: "County", ansValue: isCounty(selected) })
+//                            handleAddress({ ansKey: "County", ansValue: isCounty(selected) })
                         }
                         setAddressInfo(selected)
                     }}
                 />
-                <ErrorTag hasAlert={hasAlert} setHasAlert={setHasAlert}/>
+                <ErrorTag hasAlert={hasAlert} setHasAlert={setHasAlert} />
             </div>
         </>
     )

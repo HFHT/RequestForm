@@ -1,4 +1,4 @@
-import { useState, useEffect, forwardRef } from 'react';
+import { useState, useEffect, useReducer, forwardRef } from 'react';
 import { Button, TextField, Dialog, DialogTitle, DialogContent, DialogContentText, FormGroup, FormControlLabel, Grid, Snackbar, Alert as MuiAlert, Switch, CircularProgress, ToggleButton, ToggleButtonGroup, Stack, Paper, useMediaQuery, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
 import { Task as TaskIcon } from '@mui/icons-material';
 
@@ -44,6 +44,8 @@ function App(props) {
   const [rejectMsg, setRejectMsg] = useState(null)
   const [addressInfo, setAddressInfo] = useState({})
   const [selectedRepairs, setSelectedRepairs] = useState('')
+  const [lastQuestion, setLastQuestion] = useState(false)
+  const [questionsDone, setQuestionsDone] = useState(false)
   const [cityCheck, setCityCheck] = useState(null)
   const [countyCheck, setCountyCheck] = useState(null)
   const [cityYesNo, setCityYesNo] = useState(null)
@@ -73,22 +75,51 @@ function App(props) {
     console.log(e)
   }
 
-  const handleAddress = ({ ansKey, ansValue }) => {
-    if (ansValue === null) { return (null) }
+  const handleAddress = ({ city, county }) => {
+    if (!city) { return (null) }
     // filter through list of questions remove city and or county 
     let filterQuestions = questions.filter((q) => {
-      return q
+      switch (q.attrib) {
+        case 'County': {
+          return county === "no"
+        }
+        case 'City': {
+          return city === 'P'
+        }
+        default:
+          return true
+      }
     })
     console.log(filterQuestions)
-    updateAnswer({ ansKey: ansKey, ansValue: ansValue, setter: setAnswers })
+    // try changing this to useReducer
+    if (filterQuestions.length !== 0) {
+      //      setThisQuestion(filterQuestions[0])
+      setQuestions(filterQuestions)
+      //      setQuestions(prevState => ({
+      //        ...prevState,
+      //        ...filterQuestions
+      //      }))
+    }
   }
 
-  const handleAnswer = ({ clientAns, ansKey, reject, rejectMsg }) => {
+  const handleAnswer = ({ mode, clientAns, ansKey, reject, rejectMsg, skip }) => {
     console.log(clientAns, ansKey, reject, rejectMsg)
     updateAnswer({ ansKey: ansKey, ansValue: clientAns, setter: setAnswers })
     if (reject.indexOf(clientAns) > -1) {
       console.log(rejectMsg)
       setRejectMsg(rejectMsg)
+    }
+    if (mode === 'shift') {
+      let curQuestions = [...questions]
+      console.log(curQuestions)
+      curQuestions.shift()
+      if (skip.hasOwnProperty('ans')) {
+        console.log(skip)
+        if (skip.ans.indexOf(clientAns) > -1) {
+          curQuestions.shift()
+        }
+      }
+      setQuestions(curQuestions)
     }
   }
 
@@ -128,6 +159,14 @@ function App(props) {
       setAnswers(instructions.Answers)
   }, [instructions])
 
+  useEffect(() => {
+    console.log('question state', questions)
+    lastQuestion && setQuestionsDone(true)
+    questions[0] && questions[0].hasOwnProperty('done') && questions[0].done === "yes" &&
+      setLastQuestion(true)
+    setThisQuestion(questions[0])
+  }, [questions])
+
   return (
     <div>
       {(instructions && instructions.hasOwnProperty('Questions') && zipCodes.length) ? <CircularProgress /> :
@@ -138,9 +177,10 @@ function App(props) {
             zipCodes={zipCodes}
             addressInfo={addressInfo}
             setAddressInfo={setAddressInfo}
+            handleAnswer={handleAnswer}
             handleAddress={handleAddress} />
           <ProgressPanel language={language} answers={answers} setAnswers={setAnswers} />
-          {addressInfo && addressInfo.hasOwnProperty('address_components') &&
+          {addressInfo && addressInfo.hasOwnProperty('address_components') && questions.length > 0 && !rejectMsg &&
             <QuestionPanel
               language={language}
               questions={questions}
@@ -149,8 +189,8 @@ function App(props) {
               answers={answers}
               handleAnswer={handleAnswer}
               yesTranslate={yesTranslate} />}
-          {false && selectedRepairs === "" && <RepairListPanel repairs={repairs} setRepairs={setRepairs} language={language} repairsDone={setSelectedRepairs} matches={matches} />}
-          {false && <ResultPanel language={language} />}
+          {questionsDone && selectedRepairs === "" && <RepairListPanel repairs={repairs} setRepairs={setRepairs} language={language} setSelectedRepairs={setSelectedRepairs} matches={matches} />}
+          {questionsDone && selectedRepairs !== "" && <ResultPanel language={language} />}
 
           <Dialog
             open={rejectMsg !== null}

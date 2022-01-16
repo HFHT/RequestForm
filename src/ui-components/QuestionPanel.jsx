@@ -23,7 +23,7 @@ export default function QuestionPanel({ thisQuestion, income, answers, language,
                 orientation={matches ? "horizontal" : "vertical"}
                 color="primary"
                 exclusive
-                onChange={(e) => handleAnswer({ clientAns: e.target.value, ansKey: thisQuestion.attrib, reject: thisQuestion.reject, rejectMsg: thisQuestion.r})}
+                onChange={(e) => handleAnswer({ mode: 'shift', clientAns: e.target.value, ansKey: thisQuestion.attrib, reject: thisQuestion.reject, rejectMsg: thisQuestion.r, skip: thisQuestion.ck})}
               >
                 <ToggleButton value={`${yesTranslate}`}>{yesTranslate}</ToggleButton>
                 <ToggleButton value="no">no</ToggleButton>
