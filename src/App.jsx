@@ -46,10 +46,6 @@ function App(props) {
   const [selectedRepairs, setSelectedRepairs] = useState('')
   const [lastQuestion, setLastQuestion] = useState(false)
   const [questionsDone, setQuestionsDone] = useState(false)
-  const [cityCheck, setCityCheck] = useState(null)
-  const [countyCheck, setCountyCheck] = useState(null)
-  const [cityYesNo, setCityYesNo] = useState(null)
-  const [countyYesNo, setCountyYesNo] = useState(null)
   const [contactName, setContactName] = useState('')
   const [contactPhone, setContactPhone] = useState('')
   const [contactEmail, setContactEmail] = useState('')
@@ -91,14 +87,9 @@ function App(props) {
       }
     })
     console.log(filterQuestions)
-    // try changing this to useReducer
+
     if (filterQuestions.length !== 0) {
-      //      setThisQuestion(filterQuestions[0])
       setQuestions(filterQuestions)
-      //      setQuestions(prevState => ({
-      //        ...prevState,
-      //        ...filterQuestions
-      //      }))
     }
   }
 
@@ -167,11 +158,18 @@ function App(props) {
     setThisQuestion(questions[0])
   }, [questions])
 
+  useEffect(() => {
+    console.log('repairList state', selectedRepairs)
+    selectedRepairs !== '' &&
+      handleAnswer({ mode: null, ansKey: "Repairs", clientAns: "yes", reject: [], rejectMsg: null, skip: {} })
+  }, [selectedRepairs])
+
   return (
     <div>
       {(instructions && instructions.hasOwnProperty('Questions') && zipCodes.length) ? <CircularProgress /> :
         <div>
           <SelLanguage language={language} onChange={handleChange} matches={matches} />
+          <ProgressPanel language={language} yesTranslate={yesTranslate} answers={answers} setAnswers={setAnswers} />
           <GoogleAddress
             language={language}
             zipCodes={zipCodes}
@@ -179,7 +177,7 @@ function App(props) {
             setAddressInfo={setAddressInfo}
             handleAnswer={handleAnswer}
             handleAddress={handleAddress} />
-          <ProgressPanel language={language} answers={answers} setAnswers={setAnswers} />
+
           {addressInfo && addressInfo.hasOwnProperty('address_components') && questions.length > 0 && !rejectMsg &&
             <QuestionPanel
               language={language}

@@ -23,7 +23,7 @@ export default function QuestionPanel({ thisQuestion, income, answers, language,
                 orientation={matches ? "horizontal" : "vertical"}
                 color="primary"
                 exclusive
-                onChange={(e) => handleAnswer({ mode: 'shift', clientAns: e.target.value, ansKey: thisQuestion.attrib, reject: thisQuestion.reject, rejectMsg: thisQuestion.r, skip: thisQuestion.ck})}
+                onChange={(e) => handleAnswer({ mode: 'shift', clientAns: e.target.value, ansKey: thisQuestion.attrib, reject: thisQuestion.reject, rejectMsg: thisQuestion.r, skip: thisQuestion.ck })}
               >
                 <ToggleButton value={`${yesTranslate}`}>{yesTranslate}</ToggleButton>
                 <ToggleButton value="no">no</ToggleButton>
@@ -33,7 +33,7 @@ export default function QuestionPanel({ thisQuestion, income, answers, language,
               <h3>{thisQuestion.q[language]}</h3>
             </Item>
           </Stack>
-          <Incomex language={language} matches={matches} income={income.Values}
+          <Incomex open={thisQuestion.attrib === "Income"} language={language} matches={matches} income={income.Values}
             subHeader={income.IncomeDesc[language]}
           />
         </>
@@ -42,34 +42,38 @@ export default function QuestionPanel({ thisQuestion, income, answers, language,
   )
 }
 
-const Incomex = ({ language, income, subHeader, matches }) => {
+const Incomex = ({ open, language, income, subHeader, matches }) => {
   return (
-    <Stack direction="column" spacing={0} >
-      <Item elevation={0}><h3>{subHeader}</h3></Item>
-      <Item>
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 150 }, { maxWidth: 400 }} size="small" aria-label="a dense table">
-            <TableHead>
-              <TableRow>
-                <TableCell style={{ width: "50%" }} size="small" align="center">{language === 'en' ? 'Family Size' : 'Tamaño de la familia'}</TableCell>
-                <TableCell style={{ width: "50%" }} size="small" align="center">{language === 'en' ? 'Maximum Income' : 'Renta máxima'}</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {income.map((row, i) => (
-                <TableRow
-                  key={i}
-                  hover={true}
-                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                >
-                  <TableCell size="small" align="center">{row.size}</TableCell>
-                  <TableCell size="small" align="center">{row.maxIncome}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Item>
-    </Stack>
+    <>
+      {open &&
+        <Stack direction="column" spacing={0} >
+          <Item elevation={0}><h3>{subHeader}</h3></Item>
+          <Item>
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 150 }, { maxWidth: 400 }} size="small" aria-label="a dense table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell style={{ width: "50%" }} size="small" align="center">{language === 'en' ? 'Family Size' : 'Tamaño de la familia'}</TableCell>
+                    <TableCell style={{ width: "50%" }} size="small" align="center">{language === 'en' ? 'Maximum Income' : 'Renta máxima'}</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {income.map((row, i) => (
+                    <TableRow
+                      key={i}
+                      hover={true}
+                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                    >
+                      <TableCell size="small" align="center">{row.size}</TableCell>
+                      <TableCell size="small" align="center">{row.maxIncome}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Item>
+        </Stack>
+      }
+    </>
   )
 }
