@@ -2,7 +2,24 @@ import { useState, useEffect, forwardRef } from 'react';
 import { TextField } from '@mui/material'
 import { Task as TaskIcon } from '@mui/icons-material';
 
-export default function ResultPanel(props) {
+// Check to see if all selected repairs are part of the program
+// Need to convert selected repairs from array of objects to array, then do an array comparison
+const checkRepairs = (selected, allowed) => {
+    let theseRepairs = selected.map((r) => {
+        return Object.keys(r)[0]
+    })
+    console.log(theseRepairs, allowed)
+    return checker(theseRepairs, allowed)
+}
+
+// Check to insure that all selected repairs are in the allowed array
+const checker = (selected, allowed) => selected.every(s => {
+    return allowed.includes(s)
+});
+
+export default function ResultPanel({ language, programList, programs, answers, selectedRepairs, setter }) {
+    console.log(programList, programs, answers, selectedRepairs)
+    const [matchPrograms, setMatchPrograms] = useState(null)
     const [contactName, setContactName] = useState('')
     const [contactPhone, setContactPhone] = useState('')
     const [contactEmail, setContactEmail] = useState('')
@@ -10,7 +27,30 @@ export default function ResultPanel(props) {
         name: false,
         phone: false,
         email: false
-      })    
+    })
+
+    const repairs = [{ Program: "ABWK", "Active": true }, { Program: "AIP", "Active": true }]
+    // Determine which repair programs the applicant is eligible for
+    useEffect(() => {
+        let filterPrograms = programList.filter((p) => {
+            console.log(p)
+            if (p.Active) {
+                if (p.hasOwnProperty('Repair') && !checkRepairs(selectedRepairs, p.Repair)) {
+                    return false
+                }
+                if (p.hasOwnProperty('ck')) {
+                    console.log(p.ck)
+                    // need to handle spanish!!!!
+                    return (answers[p.ck.ans] === p.ck.val)
+                }
+                return true
+            } else {
+                return false
+            }
+        })
+        setMatchPrograms(filterPrograms)
+    }, [])
+
     return (
         <><h1>ResultPanel</h1>
             <Contact

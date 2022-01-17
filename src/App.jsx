@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogContentText,  CircularProgress, ToggleButton, ToggleButtonGroup, Stack, useMediaQuery } from '@mui/material'
+import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button, CircularProgress, ToggleButton, ToggleButtonGroup, Stack, useMediaQuery } from '@mui/material'
 
 import './App.css';
 import { MongoAPI } from './services/MongoDBAPI'
@@ -34,6 +34,8 @@ function App(props) {
   const [hasAlert, setHasAlert] = useState(null)
   const [instructions, setInstructions] = useState(null)
   const [questions, setQuestions] = useState([])
+  const [programList, setProgramList] = useState([])
+  const [programs, setPrograms] = useState([])
   const [thisQuestion, setThisQuestion] = useState(null)
   const [income, setIncome] = useState(null)
   const [answers, setAnswers] = useState({})
@@ -42,6 +44,7 @@ function App(props) {
   const [language, setLanguage] = useState(props.language)
   const [yesTranslate, setYesTranslate] = useState(language === 'en' ? "yes" : "sí")
   const [rejectMsg, setRejectMsg] = useState(null)
+  const [proceed, setProceed] = useState(false)
   const [addressInfo, setAddressInfo] = useState({})
   const [selectedRepairs, setSelectedRepairs] = useState('')
   const [lastQuestion, setLastQuestion] = useState(false)
@@ -63,7 +66,7 @@ function App(props) {
     console.log(event.target.value)
   };
 
-  // Handle dialog close events, optionally prevent the user from clicking away the modal.
+  // Handle dialog close events, prevent the user from clicking away the modal.
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -71,6 +74,10 @@ function App(props) {
     setHasAlert(null);
   };
 
+  const handleProceed = (event) => {
+    console.log(event)
+    setRejectMsg(null)
+  }
 
   const handleMailError = ({ e }) => {
     console.log(e)
@@ -103,11 +110,12 @@ function App(props) {
   // Remove the just answered questions from the questions array,
   // also check this answer to determine if any subsequent questions can be skipped
   // by updating the questions state, a corresponding useEffect will fire
-  const handleAnswer = ({ mode, clientAns, ansKey, reject, rejectMsg, skip }) => {
-    console.log(clientAns, ansKey, reject, rejectMsg)
+  const handleAnswer = ({ mode, clientAns, ansKey, reject, rejectMsg, skip, proceed }) => {
+    console.log(clientAns, ansKey, reject, rejectMsg, proceed)
     updateAnswer({ ansKey: ansKey, ansValue: clientAns, setter: setAnswers })
     if (reject.indexOf(clientAns) > -1) {
       console.log(rejectMsg)
+      setProceed(proceed)
       setRejectMsg(rejectMsg)
     }
     if (mode === 'shift') {
@@ -140,6 +148,7 @@ function App(props) {
     const getInstructions = async () => {
       await MongoAPI({ method: 'max', db: 'HomeRepairApp', collection: 'Questions', find: "Version", limit: 1 }, setInstructions)
       await MongoAPI({ method: 'find', db: 'HomeRepairApp', collection: 'ZipCodes', find: { "_id": 0 } }, setZipCodes)
+      await MongoAPI({ method: 'find', db: 'HomeRepairApp', collection: 'Programs', find: { "_id": 0 } }, setPrograms)
     }
     getInstructions()
   }, [])
@@ -161,6 +170,8 @@ function App(props) {
       setRepairs(instructions.RepairList)
     instructions && instructions.hasOwnProperty('Answers') &&
       setAnswers(instructions.Answers)
+    instructions && instructions.hasOwnProperty('Programs') &&
+      setProgramList(instructions.Programs)
   }, [instructions])
 
   // When an item is added or removed from the questions array, set the current question, also test for if it is the last question
@@ -203,7 +214,7 @@ function App(props) {
               handleAnswer={handleAnswer}
               yesTranslate={yesTranslate} />}
           {questionsDone && selectedRepairs === "" && <RepairListPanel repairs={repairs} setRepairs={setRepairs} language={language} setSelectedRepairs={setSelectedRepairs} matches={matches} />}
-          {questionsDone && selectedRepairs !== "" && <ResultPanel language={language} />}
+          {questionsDone && selectedRepairs !== "" && <ResultPanel language={language} programList={programList} programs={programs} answers={answers} selectedRepairs={selectedRepairs} />}
 
           <Dialog
             open={rejectMsg !== null}
@@ -219,6 +230,11 @@ function App(props) {
                 Insert <a href="https://www.habitattucson.org/services/other-resources/">link</a> to other possible services.
               </DialogContentText>
             </DialogContent>
+            <DialogActions>
+              {proceed &&
+                <Button onClick={handleProceed}>Continue application as a NON EMERGENCY.</Button>
+              }
+            </DialogActions>
           </Dialog>
         </div>
       }
