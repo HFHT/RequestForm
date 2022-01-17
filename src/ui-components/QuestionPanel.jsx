@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ToggleButton, ToggleButtonGroup, Stack, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
 
 import { Item } from './Item';
+import { titles } from '../services/Titles'
 
 export default function QuestionPanel({ thisQuestion, income, answers, language, matches, yesTranslate, handleAnswer }) {
   const [rejectMsg, setRejectMsg] = useState(null)
@@ -14,7 +15,7 @@ export default function QuestionPanel({ thisQuestion, income, answers, language,
     <>
       {!rejectMsg &&
         <>
-          <Item elevation={0}><h3>{language === 'en' ? 'Please answer the questions:' : 'Por favor responda las preguntas:'}</h3></Item>
+          <Item elevation={0}><h3>{titles(language, 'QP_ANSWER')}</h3></Item>
           <Stack direction="row" spacing={2} >
             <Item elevation={0}>
               <ToggleButtonGroup
@@ -23,7 +24,7 @@ export default function QuestionPanel({ thisQuestion, income, answers, language,
                 exclusive
                 onChange={(e) => handleAnswer({ mode: 'shift', clientAns: e.target.value, ansKey: thisQuestion.attrib, reject: thisQuestion.reject, rejectMsg: thisQuestion.r, skip: thisQuestion.ck, proceed: thisQuestion.hasOwnProperty('proceed') })}
               >
-                <ToggleButton value={`${yesTranslate}`}>{yesTranslate}</ToggleButton>
+                <ToggleButton value={"yes"}>{yesTranslate}</ToggleButton>
                 <ToggleButton value="no">no</ToggleButton>
               </ToggleButtonGroup>
             </Item>
@@ -51,8 +52,8 @@ const Incomex = ({ open, language, income, subHeader, matches }) => {
               <Table sx={{ minWidth: 150 }, { maxWidth: 400 }} size="small" aria-label="a dense table">
                 <TableHead>
                   <TableRow>
-                    <TableCell style={{ width: "50%" }} size="small" align="center">{language === 'en' ? 'Family Size' : 'Tamaño de la familia'}</TableCell>
-                    <TableCell style={{ width: "50%" }} size="small" align="center">{language === 'en' ? 'Maximum Income' : 'Renta máxima'}</TableCell>
+                    <TableCell style={{ width: "50%" }} size="small" align="center">{titles(language, 'QP_SIZE')}</TableCell>
+                    <TableCell style={{ width: "50%" }} size="small" align="center">{titles(language, 'QP_INCOME')}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

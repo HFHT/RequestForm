@@ -3,6 +3,7 @@ import AutoComplete from "react-google-autocomplete";
 import { isCity } from '../services/IsCity'
 import { isCounty } from '../services/IsCounty'
 import { Item } from './Item';
+import { titles } from '../services/Titles'
 import ErrorTag from './ErrorTag';
 
 export default function GoogleAddress({ language, zipCodes, addressInfo, setAddressInfo, handleAnswer, handleAddress }) {
@@ -20,21 +21,21 @@ export default function GoogleAddress({ language, zipCodes, addressInfo, setAddr
     return (
         <>
             <div style={{ width: "auto" }}>
-                <Item elevation={0}><h3>{language === 'en' ? 'Provide the address of the home' : 'Proporcione la dirección de la casa'}</h3></Item>
+                <Item elevation={0}><h3>{titles(language, 'GA_ADDRESS')}</h3></Item>
                 <AutoComplete
                     apiKey={`${process.env.REACT_APP_GOOGLE_APIKEY}`}
-                    placeholder={language === 'en' ? 'Your address...' : 'Su dirección...'}
+                    placeholder={titles(language, 'GA_YOUR')}
                     options={{
                         types: ["address"],
                         componentRestrictions: { country: "us" },
                     }}
                     onPlaceSelected={(selected) => {
                         if (selected.hasOwnProperty('name')) {
-                            setHasAlert(language === 'en' ? 'Please reenter the address and select it from the list!' : '¡Vuelva a ingresar la dirección y selecciónela de la lista!')
+                            setHasAlert(titles(language, 'GA_REENTER'))
                         } else {
                             setHasAlert(null);
+                            setAddressInfo(selected)                            
                         }
-                        setAddressInfo(selected)
                     }}
                 />
                 <ErrorTag hasAlert={hasAlert} setHasAlert={setHasAlert} />

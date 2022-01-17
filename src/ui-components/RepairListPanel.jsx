@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button, FormGroup, Grid, FormControlLabel, Switch } from '@mui/material'
 import { Task as TaskIcon } from '@mui/icons-material';
 import ErrorTag from './ErrorTag';
+import { titles } from '../services/Titles'
 
 const listRepairs = (repairs) => {
     let theList = []
@@ -27,7 +28,7 @@ export default function RepairListPanel({ repairs, setRepairs, setSelectedRepair
         let selectedRepairs = listRepairs(repairs)
         if (selectedRepairs.length === 0) {
             console.log('setHasAlert')
-            setHasAlert(language === 'en' ? 'You must select one or more repairs!' : '¡Debe seleccionar una o más reparaciones!')
+            setHasAlert(titles(language, 'RL_ALERT'))
         } else {
             setSelectedRepairs(selectedRepairs)
         }
@@ -35,7 +36,7 @@ export default function RepairListPanel({ repairs, setRepairs, setSelectedRepair
     return (
         <div>
             <Button variant="contained" color="primary" onClick={handleRepairDone} endIcon={<TaskIcon />} sx={matches ? { marginLeft: '4px' } : {}}>
-                {language === 'en' ? 'Select the needed repairs -> Click when Done' : 'Seleccione las reparaciones necesarias -> Haga clic cuando esté listo'}
+                {titles(language, 'RL_BUTTON')}
             </Button>
             <FormGroup>
                 <Grid container rowSpacing={1} columnSpacing={1} sx={{ paddingLeft: '8px' }}>

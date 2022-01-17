@@ -8,7 +8,9 @@ import ProgressPanel from './ui-components/ProgressPanel';
 import QuestionPanel from './ui-components/QuestionPanel';
 import RepairListPanel from './ui-components/RepairListPanel';
 import ResultPanel from './ui-components/ResultPanel';
+import ApplicantPanel from './ui-components/ApplicantPanel';
 import { Item } from './ui-components/Item';
+import { titles } from './services/Titles'
 
 const dbDate = () => {
   /* fix the following for time zone */
@@ -49,6 +51,7 @@ function App(props) {
   const [selectedRepairs, setSelectedRepairs] = useState('')
   const [lastQuestion, setLastQuestion] = useState(false)
   const [questionsDone, setQuestionsDone] = useState(false)
+  const [filloutApp,setFilloutApp] = useState(false)  
   const [contactName, setContactName] = useState('')
   const [contactPhone, setContactPhone] = useState('')
   const [contactEmail, setContactEmail] = useState('')
@@ -214,7 +217,8 @@ function App(props) {
               handleAnswer={handleAnswer}
               yesTranslate={yesTranslate} />}
           {questionsDone && selectedRepairs === "" && <RepairListPanel repairs={repairs} setRepairs={setRepairs} language={language} setSelectedRepairs={setSelectedRepairs} matches={matches} />}
-          {questionsDone && selectedRepairs !== "" && <ResultPanel language={language} programList={programList} programs={programs} answers={answers} selectedRepairs={selectedRepairs} />}
+          {questionsDone && selectedRepairs !== "" && !filloutApp && <ResultPanel language={language} programList={programList} programs={programs} answers={answers} selectedRepairs={selectedRepairs} setter={setFilloutApp} matches={matches} />}
+          {questionsDone && filloutApp && <ApplicantPanel language={language} programList={programList} programs={programs} answers={answers} selectedRepairs={selectedRepairs} />}
 
           <Dialog
             open={rejectMsg !== null}
@@ -232,7 +236,7 @@ function App(props) {
             </DialogContent>
             <DialogActions>
               {proceed &&
-                <Button onClick={handleProceed}>Continue application as a NON EMERGENCY.</Button>
+                <Button onClick={handleProceed}>{titles(language, 'AP_EMERGENCY')}</Button>
               }
             </DialogActions>
           </Dialog>

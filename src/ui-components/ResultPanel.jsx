@@ -1,6 +1,7 @@
 import { useState, useEffect, forwardRef } from 'react';
-import { TextField } from '@mui/material'
+import { Button, ToggleButtonGroup, ToggleButton, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material'
 import { Task as TaskIcon } from '@mui/icons-material';
+import { titles } from '../services/Titles'
 
 // Check to see if all selected repairs are part of the program
 // Need to convert selected repairs from array of objects to array, then do an array comparison
@@ -17,19 +18,16 @@ const checker = (selected, allowed) => selected.every(s => {
     return allowed.includes(s)
 });
 
-export default function ResultPanel({ language, programList, programs, answers, selectedRepairs, setter }) {
+export default function ResultPanel({ language, programList, programs, answers, selectedRepairs, matches, setter }) {
     console.log(programList, programs, answers, selectedRepairs)
     const [matchPrograms, setMatchPrograms] = useState(null)
-    const [contactName, setContactName] = useState('')
-    const [contactPhone, setContactPhone] = useState('')
-    const [contactEmail, setContactEmail] = useState('')
-    const [contactErrors, setContactErrors] = useState({
-        name: false,
-        phone: false,
-        email: false
+    const [alignment, setAlignment] = useState('yes')
+    const handleChange = ((e, newAlignment) => {
+        console.log(e, newAlignment)
+        setAlignment(newAlignment)
+        setter(newAlignment)
     })
 
-    const repairs = [{ Program: "ABWK", "Active": true }, { Program: "AIP", "Active": true }]
     // Determine which repair programs the applicant is eligible for
     useEffect(() => {
         let filterPrograms = programList.filter((p) => {
@@ -52,137 +50,53 @@ export default function ResultPanel({ language, programList, programs, answers, 
     }, [])
 
     return (
-        <><h1>ResultPanel</h1>
-            <Contact
-                contactName={contactName}
-                setContactName={setContactName}
-                contactPhone={contactPhone}
-                setContactPhone={setContactPhone}
-                contactEmail={contactEmail}
-                setContactEmail={setContactEmail}
-                error={contactErrors}
-            />
+        <>
+            {matchPrograms &&
+                <>
+                    {(matchPrograms.length < 1) ? <NotQualified /> :
+                        <>
+                            <h2>{titles(language, 'HR_ELIGIBLE')}</h2>
+                            <TableContainer component={Paper}>
+                                <Table sx={{ minWidth: 300, maxWidth: 500 }} aria-label="simple table">
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell><b><i>{titles(language, 'HR_PROGRAM')}</i></b></TableCell>
+                                            <TableCell align="right"><b><i>{titles(language, 'HR_WAITLIST')}</i></b></TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {matchPrograms.map((p, i) => (
+                                            <TableRow
+                                                key={i}
+                                                hover={true}
+                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                            >
+                                                <TableCell>{p.r[language]}</TableCell>
+                                                <TableCell align="right">{programs.Programs[p.Program]}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                            <ToggleButtonGroup
+                                color="info"
+                                value={alignment}
+                                exclusive
+                                onChange={handleChange}
+                            >
+                                <ToggleButton value="yes">{titles(language, 'HR_PROCEED')}</ToggleButton>
+                                <ToggleButton value="no">{titles(language, 'HR_CANCEL')}</ToggleButton>
+                            </ToggleButtonGroup>
+
+                        </>}
+                </>
+            }
         </>
     )
 }
 
-const Contact = ({ contactCard, contactName, setContactName, contactPhone, setContactPhone, contactEmail, setContactEmail, error }) => {
-    console.log(contactCard, error)
+const NotQualified = (props) => {
     return (
-        <>
-            <form >
-                <TextField
-                    id="outlined-basic"
-                    placeholder="Enter your name"
-                    label="Name"
-                    variant="outlined"
-                    inputProps={{ 'data-lpignore': 'true' }}
-                    value={contactName}
-                    onChange={(e) => setContactName(e.target.value)}
-                    error={error.name}
-                    required
-                    type="text"
-                />
-                <TextField
-                    id="outlined-basic"
-                    placeholder="Enter phone number"
-                    label="Phone"
-                    variant="outlined"
-                    inputProps={{ 'data-lpignore': 'true' }}
-                    value={contactPhone}
-                    onChange={(e) => setContactPhone(e.target.value)}
-                    error={error.phone}
-                    required
-                    type="tel"
-                />
-                <TextField
-                    id="outlined-basic"
-                    placeholder="Enter phone number"
-                    label="Alt Phone"
-                    variant="outlined"
-                    inputProps={{ 'data-lpignore': 'true' }}
-                    value={contactPhone}
-                    onChange={(e) => setContactPhone(e.target.value)}
-                    error={error.phone}
-                    required
-                    type="tel"
-                />
-                <TextField
-                    id="outlined-basic"
-                    label="Email"
-                    placeholder="Enter email address"
-                    variant="outlined"
-                    inputProps={{ 'data-lpignore': 'true' }}
-                    value={contactEmail}
-                    onChange={(e) => setContactEmail(e.target.value)}
-                    error={error.mail}
-                    required
-                    type="email"
-                />
-                <TextField
-                    id="outlined-basic"
-                    label="Sex"
-                    placeholder="Enter sex"
-                    variant="outlined"
-                    inputProps={{ 'data-lpignore': 'true' }}
-                    value={contactEmail}
-                    onChange={(e) => setContactEmail(e.target.value)}
-                    error={error.mail}
-                    required
-                    type="email"
-                />
-                <TextField
-                    id="outlined-basic"
-                    label="Marital Status"
-                    placeholder="Enter Marital Status"
-                    variant="outlined"
-                    inputProps={{ 'data-lpignore': 'true' }}
-                    value={contactEmail}
-                    onChange={(e) => setContactEmail(e.target.value)}
-                    error={error.mail}
-                    required
-                    type="email"
-                />
-                <TextField
-                    id="outlined-basic"
-                    label="Military"
-                    placeholder="Enter Military"
-                    variant="outlined"
-                    inputProps={{ 'data-lpignore': 'true' }}
-                    value={contactEmail}
-                    onChange={(e) => setContactEmail(e.target.value)}
-                    error={error.mail}
-                    required
-                    type="email"
-                />
-                <TextField
-                    id="outlined-basic"
-                    label="Hear about us"
-                    placeholder="Enter Military"
-                    variant="outlined"
-                    inputProps={{ 'data-lpignore': 'true' }}
-                    value={contactEmail}
-                    onChange={(e) => setContactEmail(e.target.value)}
-                    error={error.mail}
-                    required
-                    type="email"
-                />
-                <TextField
-                    id="outlined-basic"
-                    label="Others in Household"
-                    placeholder="Enter Military"
-                    variant="outlined"
-                    inputProps={{ 'data-lpignore': 'true' }}
-                    value={contactEmail}
-                    onChange={(e) => setContactEmail(e.target.value)}
-                    error={error.mail}
-                    required
-                    type="email"
-                />
-            </form>
-
-
-
-        </>
+        <h2>Habitat Tucson currently has no repair programs that satisfy your needs.</h2>
     )
 }
