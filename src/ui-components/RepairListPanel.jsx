@@ -12,12 +12,16 @@ const listRepairs = (repairs) => {
 export default function RepairListPanel({ repairs, setRepairs, setSelectedRepairs, language, matches }) {
     const [hasAlert, setHasAlert] = useState(null);
 
+    // handle the toggling of the repairs switch buttons by adding/removing this repair from the repairs state variable
     const handleRepairSel = ({ event, repairs, thisRepair }) => {
         console.log(event, repairs, thisRepair)
         let newRepairs = repairs.map(item => Object.keys(item)[0] === thisRepair ? ({ ...item, set: !item.set }) : item)
         console.log(newRepairs)
         setRepairs(newRepairs)
     }
+
+    // handle when the repair done button is pressed, create the list of selected repairs, set the selectedRepairs state variable
+    // Inforce that at least one repair needs to be selected.
     const handleRepairDone = (event) => {
         console.log(event, repairs)
         let selectedRepairs = listRepairs(repairs)
@@ -42,7 +46,6 @@ export default function RepairListPanel({ repairs, setRepairs, setSelectedRepair
                                     <Switch checked={item.set}
                                         onChange={(e) => handleRepairSel({ event: e, repairs: repairs, thisRepair: Object.keys(item)[0] })}
                                         name={Object.keys(item)[0]} />
-
                                 }
                                     label={item[Object.keys(item)[0]][language]}
                                 />
@@ -52,7 +55,7 @@ export default function RepairListPanel({ repairs, setRepairs, setSelectedRepair
                     )}
                 </Grid>
             </FormGroup>
-            <ErrorTag hasAlert={hasAlert} setHasAlert={setHasAlert}/>
+            <ErrorTag hasAlert={hasAlert} setHasAlert={setHasAlert} />
         </div>
     )
 }

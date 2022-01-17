@@ -1,6 +1,5 @@
-import { useState, useEffect, forwardRef } from 'react';
-import { Button, TextField, Dialog, DialogTitle, DialogContent, DialogContentText, FormGroup, FormControlLabel, Grid, Snackbar, Alert as MuiAlert, Switch, CircularProgress, ToggleButton, ToggleButtonGroup, Stack, Paper, useMediaQuery, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
-import { Task as TaskIcon } from '@mui/icons-material';
+import { useState, useEffect } from 'react';
+import { ToggleButton, ToggleButtonGroup, Stack, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
 
 import { Item } from './Item';
 
@@ -10,7 +9,6 @@ export default function QuestionPanel({ thisQuestion, income, answers, language,
 
   useEffect(() => {
     console.log(thisQuestion)
-
   }, [])
   return (
     <>

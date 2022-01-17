@@ -1,5 +1,4 @@
-import { useState, useEffect, forwardRef } from 'react';
-import { TextField, Grid, Button, Chip } from '@mui/material'
+import { Grid, Chip } from '@mui/material'
 import { Check as CheckIcon, Cancel as CancelIcon, NotInterested as NotInterestedIcon } from '@mui/icons-material';
 
 const isYes = (ans) => {
@@ -7,7 +6,6 @@ const isYes = (ans) => {
 }
 
 export default function ProgressPanel({ answers, yesTranslate, setAnswers, language }) {
-
     return (
         <div style={{ marginLeft: "4px" }}>
             <Grid container direction="row" spacing="4"
