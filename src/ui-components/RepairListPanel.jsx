@@ -35,7 +35,7 @@ export default function RepairListPanel({ repairs, setRepairs, setSelectedRepair
     }
     return (
         <div>
-            <Button variant="contained" color="primary" onClick={handleRepairDone} endIcon={<TaskIcon />} sx={matches ? { marginLeft: '4px' } : {}}>
+            <Button variant="outlined" color="primary" onClick={handleRepairDone} endIcon={<TaskIcon />} sx={matches ? { marginLeft: '4px' } : {}}>
                 {titles(language, 'RL_BUTTON')}
             </Button>
             <FormGroup>

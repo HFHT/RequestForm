@@ -29,7 +29,11 @@ export const titles = (language, thisTitle) => {
         "GA_ADDRESS": {
             en: 'Provide the address of the home',
             es: 'Proporcione la dirección de la casa'
-        },  
+        }, 
+        "GA_GOTADDRESS": {
+            en: 'Address of the home:',
+            es: 'Dirección de la casa'
+        },           
         "GA_YOUR": {
             en: 'Your address...',
             es: 'Su dirección...'
@@ -57,7 +61,136 @@ export const titles = (language, thisTitle) => {
         "RL_ALERT": {
             en: 'You must select one or more repairs!',
             es: '¡Debe seleccionar una o más reparaciones!'
-        },                                                          
+        },     
+        "CA_NAME": {
+            en: 'Name',
+            es: 'Nombre'
+        }, 
+        "CA_YOURNAME": {
+            en: 'Your name',
+            es: 'Tu nombre'
+        }, 
+        "CA_PHONE": {
+            en: 'Phone',
+            es: 'Teléfono'
+        },     
+        "CA_PHONENUMBER": {
+            en: 'Phone Number',
+            es: 'Número de teléfono'
+        },     
+        "CA_ALTPHONE": {
+            en: 'Alternate Phone',
+            es: 'Teléfono alternativo'
+        },     
+        "CA_ALTPHONENUMBER": {
+            en: 'Alternate Phone Number',
+            es: 'Número de teléfono alternativo'
+        },   
+        "CA_EMAIL": {
+            en: 'Email',
+            es: 'Correo electrónico'
+        }, 
+        "CA_EMAILADDR": {
+            en: 'Email address',
+            es: 'Dirección de correo electrónico'
+        },    
+        "CA_GENDER": {
+            en: 'Gender',
+            es: 'Género'
+        }, 
+        "CA_GENFEMALE": {
+            en: 'Female',
+            es: 'Mujer'
+        },   
+        "CA_GENMALE": {
+            en: 'Male',
+            es: 'Masculino'
+        }, 
+        "CA_GENNA": {
+            en: 'Rather not say',
+            es: 'Prefiero no decirlo'
+        },    
+        "CA_MARITAL": {
+            en: 'Marital Status',
+            es: 'Prefiero no decirlo'
+        },  
+        "CA_MSMARRIED": {
+            en: 'Married',
+            es: 'Casada'
+        },  
+        "CA_MSSINGLE": {
+            en: 'Single',
+            es: 'Única'
+        },  
+        "CA_MSDIVORCED": {
+            en: 'Divorced',
+            es: 'Divorciada'
+        },  
+        "CA_MSSEPERATED": {
+            en: 'Seperated',
+            es: 'Separadas'
+        },  
+        "CA_MSWIDOWED": {
+            en: 'Widowed',
+            es: 'Viuda'
+        },  
+        "CA_MILBRANCH": {
+            en: 'Military Service',
+            es: 'Servicio militar'
+        },  
+        "CA_MBARMY": {
+            en: 'Army',
+            es: 'Ejército'
+        },  
+        "CA_MBMARINE": {
+            en: 'Marine',
+            es: 'Marino'
+        },  
+        "CA_MBNAVY": {
+            en: 'Navy',
+            es: 'Armada'
+        },  
+        "CA_MBAIRFORCE": {
+            en: 'Air Force',
+            es: 'Fuerza Aerea'
+        },  
+        "CA_MBSPACEFORCE": {
+            en: 'Space Force',
+            es: 'Fuerza Espacial'
+        },  
+        "CA_MBCOASTGUARD": {
+            en: 'Coast Guard',
+            es: 'Guardacostas'
+        },  
+        "CA_MBNATIONALGUARD": {
+            en: 'National Guard',
+            es: 'Guardia Nacional'
+        },  
+        "CA_MBUNKNOWN": {
+            en: 'Unknown',
+            es: 'Desconocido'
+        },  
+        "CA_MBSELECTALL": {
+            en: 'Select all that apply',
+            es: 'Seleccione todas las que correspondan'
+        }, 
+        "CA_MSDATES": {
+            en: 'Service Dates',
+            es: 'Fechas de Servicio'
+        }, 
+        "CA_MSDATESEXAMPLE": {
+            en: 'for example: 1972-1976',
+            es: 'por ejemplo: 1972-1976'
+        }, 
+        "CA_BIRTHYEAR": {
+            en: 'Year of Birth',
+            es: 'Año de nacimiento'
+        }, 
+        "CA_BUTTON": {
+            en: 'Fill out this form -> Click when Done',
+            es: 'Complete este formulario -> Haga clic cuando haya terminado'
+        }, 
+
     }
     return theTitles[thisTitle][language]
 }
