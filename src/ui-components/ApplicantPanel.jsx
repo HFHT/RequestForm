@@ -1,68 +1,62 @@
 import { useState, useEffect, forwardRef } from 'react';
-import { TextField } from '@mui/material'
+import { FormControl, FormControlLabel, FormLabel, InputLabel, MenuItem, Radio, RadioGroup, Select, TextField, ToggleButton, ToggleButtonGroup } from '@mui/material'
 
 export default function ApplicantPanel(props, setter) {
-    const [contactName, setContactName] = useState('')
-    const [contactPhone, setContactPhone] = useState('')
-    const [contactEmail, setContactEmail] = useState('')
+    const [name, setName] = useState('')
+    const [phone, setPhone] = useState('')
+    const [altPhone, setAltPhone] = useState('')
+    const [email, setEmail] = useState('')
+    const [gender, setGender] = useState('')
+    const [birthYear, setBirthYear] = useState('')
+    const [maritalStatus, setMaritalStatus] = useState('')
+    const [militaryBranch, setMilitaryBranch] = useState([])
+    const [militaryService, setMilitaryService] = useState('')
+
     const [contactErrors, setContactErrors] = useState({
         name: false,
         phone: false,
         email: false
     })
+    const error = {}
+    const handleChange = (event, newAlignment) => {
+        setGender(newAlignment);
+    };
+
     return (
         <div>
-            <Contact
-                contactName={contactName}
-                setContactName={setContactName}
-                contactPhone={contactPhone}
-                setContactPhone={setContactPhone}
-                contactEmail={contactEmail}
-                setContactEmail={setContactEmail}
-                error={contactErrors}
-            />
-        </div>
-    )
-}
-
-
-const Contact = ({ contactCard, contactName, setContactName, contactPhone, setContactPhone, contactEmail, setContactEmail, error }) => {
-    console.log(contactCard, error)
-    return (
-        <>
             <form >
                 <TextField
                     id="outlined-basic"
-                    placeholder="Enter your name"
+                    placeholder="Your name"
                     label="Name"
                     variant="outlined"
                     inputProps={{ 'data-lpignore': 'true' }}
-                    value={contactName}
-                    onChange={(e) => setContactName(e.target.value)}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     error={error.name}
                     required
                     type="text"
                 />
                 <TextField
                     id="outlined-basic"
-                    placeholder="Enter phone number"
+                    placeholder="Phone number"
                     label="Phone"
                     variant="outlined"
                     inputProps={{ 'data-lpignore': 'true' }}
-                    value={contactPhone}
-                    onChange={(e) => setContactPhone(e.target.value)}
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
                     error={error.phone}
                     required
                     type="tel"
                 />
                 <TextField
                     id="outlined-basic"
-                    placeholder="Enter phone number"
-                    label="Alt Phone"
+                    placeholder="Alternate phone number"
+                    label="Alternate Phone"
                     variant="outlined"
                     inputProps={{ 'data-lpignore': 'true' }}
-                    value={contactPhone}
-                    onChange={(e) => setContactPhone(e.target.value)}
+                    value={altPhone}
+                    onChange={(e) => setAltPhone(e.target.value)}
                     error={error.phone}
                     required
                     type="tel"
@@ -70,79 +64,99 @@ const Contact = ({ contactCard, contactName, setContactName, contactPhone, setCo
                 <TextField
                     id="outlined-basic"
                     label="Email"
-                    placeholder="Enter email address"
+                    placeholder="Email address"
                     variant="outlined"
                     inputProps={{ 'data-lpignore': 'true' }}
-                    value={contactEmail}
-                    onChange={(e) => setContactEmail(e.target.value)}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     error={error.mail}
                     required
                     type="email"
                 />
+                <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+                    <InputLabel id="demo-simple-select-label">Gender</InputLabel>
+                    <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={gender}
+                        label="Gender"
+                        onChange={(e) => setGender(e.target.value)}
+                    >
+                        <MenuItem value={''}>&nbsp;</MenuItem>
+                        <MenuItem value={'female'}>Female</MenuItem>
+                        <MenuItem value={'male'}>Male</MenuItem>
+                        <MenuItem value={'na'}>Rather not say</MenuItem>
+                    </Select>
+                </FormControl>
+                <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+                    <InputLabel id="demo-simple-select-label">Marital Status</InputLabel>
+                    <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={maritalStatus}
+                        label="Marital Status"
+                        onChange={(e) => setMaritalStatus(e.target.value)}
+                    >
+                        <MenuItem value={''}>&nbsp;</MenuItem>
+                        <MenuItem value={'Married'}>Married</MenuItem>
+                        <MenuItem value={'Single'}>Single</MenuItem>
+                        <MenuItem value={'Divorced'}>Divorced</MenuItem>
+                        <MenuItem value={'Seperated'}>Seperated</MenuItem>
+                        <MenuItem value={'Widowed'}>Widowed</MenuItem>
+                    </Select>
+                </FormControl>
+                <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+                    <InputLabel id="demo-simple-select-label">Military Service</InputLabel>
+                    <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={militaryBranch}
+                        label="Military Service"
+                        multiple
+                        onChange={(e) => setMilitaryBranch(e.target.value)}
+                    >
+                        <MenuItem value={''}>&nbsp;</MenuItem>
+                        <MenuItem value={'Army'}>Army</MenuItem>
+                        <MenuItem value={'Marine'}>Marine</MenuItem>
+                        <MenuItem value={'Navy'}>Navy</MenuItem>
+                        <MenuItem value={'AirForce'}>Air Force</MenuItem>
+                        <MenuItem value={'SpaceForce'}>Space Force</MenuItem>
+                        <MenuItem value={'CoastGuard'}>Coast Guard</MenuItem>
+                        <MenuItem value={'NationalGuard'}>National Guard</MenuItem>
+                        <MenuItem value={'Unkown'}>Unkown</MenuItem>
+                    </Select>
+                </FormControl>
+
+
+
                 <TextField
                     id="outlined-basic"
-                    label="Sex"
-                    placeholder="Enter sex"
+                    label="Service Dates"
+                    placeholder="for example: 1972-1976"
                     variant="outlined"
                     inputProps={{ 'data-lpignore': 'true' }}
-                    value={contactEmail}
-                    onChange={(e) => setContactEmail(e.target.value)}
+                    value={militaryService}
+                    onChange={(e) => setMilitaryService(e.target.value)}
                     error={error.mail}
                     required
-                    type="email"
+                    type="text"
                 />
                 <TextField
                     id="outlined-basic"
-                    label="Marital Status"
-                    placeholder="Enter Marital Status"
+                    label="Year of Birth"
+                    placeholder="Year of Birth"
                     variant="outlined"
                     inputProps={{ 'data-lpignore': 'true' }}
-                    value={contactEmail}
-                    onChange={(e) => setContactEmail(e.target.value)}
+                    value={birthYear}
+                    onChange={(e) => setBirthYear(e.target.value)}
                     error={error.mail}
                     required
-                    type="email"
-                />
-                <TextField
-                    id="outlined-basic"
-                    label="Military"
-                    placeholder="Enter Military"
-                    variant="outlined"
-                    inputProps={{ 'data-lpignore': 'true' }}
-                    value={contactEmail}
-                    onChange={(e) => setContactEmail(e.target.value)}
-                    error={error.mail}
-                    required
-                    type="email"
-                />
-                <TextField
-                    id="outlined-basic"
-                    label="Hear about us"
-                    placeholder="Enter Military"
-                    variant="outlined"
-                    inputProps={{ 'data-lpignore': 'true' }}
-                    value={contactEmail}
-                    onChange={(e) => setContactEmail(e.target.value)}
-                    error={error.mail}
-                    required
-                    type="email"
-                />
-                <TextField
-                    id="outlined-basic"
-                    label="Others in Household"
-                    placeholder="Enter Military"
-                    variant="outlined"
-                    inputProps={{ 'data-lpignore': 'true' }}
-                    value={contactEmail}
-                    onChange={(e) => setContactEmail(e.target.value)}
-                    error={error.mail}
-                    required
-                    type="email"
+                    type="number"
+                    inputProps={{ min: "1900", max: "2000" }}
                 />
             </form>
 
-
-
-        </>
+        </div>
     )
 }
+

@@ -1,6 +1,6 @@
 export const isCity = (googleAddrObj, zipCodeObj) => {
-    if (googleAddrObj.hasOwnProperty('address_components')) {
-      console.log(googleAddrObj, zipCodeObj)
+  console.log(googleAddrObj, zipCodeObj)  
+    if (googleAddrObj.hasOwnProperty('address_components') && (zipCodeObj)) {
       var result = googleAddrObj.address_components.filter(obj => obj.types[0] === "postal_code")
       console.log(result)
       console.log(zipCodeObj)

@@ -42,7 +42,7 @@ function App(props) {
   const [income, setIncome] = useState(null)
   const [answers, setAnswers] = useState({})
   const [repairs, setRepairs] = useState([])
-  const [zipCodes, setZipCodes] = useState([])
+  const [zipCodes, setZipCodes] = useState(null)
   const [language, setLanguage] = useState(props.language)
   const [yesTranslate, setYesTranslate] = useState(language === 'en' ? "yes" : "sí")
   const [rejectMsg, setRejectMsg] = useState(null)
@@ -195,7 +195,7 @@ function App(props) {
 
   return (
     <div>
-      {(instructions && instructions.hasOwnProperty('Questions') && zipCodes.length) ? <CircularProgress /> :
+      {(instructions && instructions.hasOwnProperty('Questions') && !zipCodes) ? <CircularProgress /> :
         <div>
           <SelLanguage language={language} onChange={handleChange} matches={matches} />
           <ProgressPanel language={language} yesTranslate={yesTranslate} answers={answers} setAnswers={setAnswers} />
