@@ -71,7 +71,8 @@ export default function ResultPanel({ language, programList, programs, answers, 
                                                 hover={true}
                                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                             >
-                                                <TableCell>{p.r[language]}</TableCell>
+                                                {p.Funding && <TableCell>{p.r[language]}</TableCell>}
+                                                {!p.Funding && <TableCell>{p.r[language]}<br /><b><i>{p.f[language]}</i></b></TableCell>}                                                
                                                 <TableCell align="right">{programs.Programs[p.Program]}</TableCell>
                                             </TableRow>
                                         ))}

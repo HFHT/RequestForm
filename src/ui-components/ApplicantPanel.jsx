@@ -74,6 +74,7 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         onChange={(e) => setAltPhone(e.target.value)}
                         error={error.altphone}
                         type="tel"
+                        sx={{ paddingLeft: 1}}
                     />
                 </Box>
                 <Box sx={{ padding: 0.5 }}>
