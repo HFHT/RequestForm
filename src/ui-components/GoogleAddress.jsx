@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import AutoComplete from "react-google-autocomplete";
 import { isCity } from '../services/IsCity'
 import { isCounty } from '../services/IsCounty'
-import { Item } from './Item';
+import { Item, HeadText, SubText } from './Item';
 import { titles } from '../services/Titles'
 import ErrorTag from './ErrorTag';
 
@@ -25,7 +25,8 @@ export default function GoogleAddress({ language, zipCodes, addressInfo, setAddr
                     <Item elevation={0}><h3>{titles(language, 'GA_GOTADDRESS')}<br />{addressInfo.formatted_address}</h3></Item>
                 </div> :
                 <div style={{ width: "auto", paddingLeft: 6, paddingBottom: 6 }}>
-                    <Item elevation={0}><h3>{titles(language, 'GA_ADDRESS')}</h3></Item>
+                    <HeadText elevation={0}>{titles(language, 'GA_ADDRESS')}</HeadText>
+                    <SubText elevation={0}><i>{titles(language, 'GA_SUBADDRESS')}</i></SubText>
                     <AutoComplete
                         apiKey={`${process.env.REACT_APP_GOOGLE_APIKEY}`}
                         placeholder={titles(language, 'GA_YOUR')}

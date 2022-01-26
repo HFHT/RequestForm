@@ -57,7 +57,7 @@ export default function ResultPanel({ language, programList, programs, answers, 
                         <>
                             <h2>{titles(language, 'HR_ELIGIBLE')}</h2>
                             <TableContainer component={Paper}>
-                                <Table sx={{ minWidth: 300, maxWidth: 500 }} aria-label="simple table">
+                                <Table sx={{ minWidth: 300, maxWidth: 500 }} aria-label="Available Repair Programs">
                                     <TableHead>
                                         <TableRow>
                                             <TableCell><b><i>{titles(language, 'HR_PROGRAM')}</i></b></TableCell>

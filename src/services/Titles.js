@@ -27,9 +27,13 @@ export const titles = (language, thisTitle) => {
             es: 'Continúe con la aplicación como NO EMERGENCIA.'
         },
         "GA_ADDRESS": {
-            en: 'Provide the address of the home',
-            es: 'Proporcione la dirección de la casa'
+            en: 'Provide the street address of the home',
+            es: 'Proporcione la dirección de la calle de la casa'
         }, 
+        "GA_SUBADDRESS": {
+            en: 'Address should not include lot or unit number',
+            es: 'La dirección no debe incluir el número de lote o unidad'
+        },        
         "GA_GOTADDRESS": {
             en: 'Address of the home:',
             es: 'Dirección de la casa'
@@ -186,11 +190,38 @@ export const titles = (language, thisTitle) => {
             en: 'Year of Birth',
             es: 'Año de nacimiento'
         }, 
+        "CA_OTHERS": {
+            en: 'Others living in home (name/age/relationship)',
+            es: 'Otros que viven en casa (nombre/edad/relación)'
+        }, 
+        "CA_LOT": {
+            en: 'Lot or Unit Number',
+            es: 'Número de lote o unidad'
+        }, 
+        "CA_LOTHELPER": {
+            en: 'Mobile home or condo?',
+            es: '¿La dirección de su casa tiene un número de lote o unidad?'
+        },         
+        "CA_REPAIRS": {
+            en: 'Please describe the repairs you are requesting.',
+            es: 'Describa las reparaciones que está solicitando.'
+        },         
         "CA_BUTTON": {
             en: 'Fill out this form -> Click when Done',
             es: 'Complete este formulario -> Haga clic cuando haya terminado'
         }, 
-
+        "OT_NAME": {
+            en: 'Their Name',
+            es: 'Su nombre'
+        }, 
+        "OT_AGE": {
+            en: 'Their Age',
+            es: 'Su edad'
+        }, 
+        "OT_RELATION": {
+            en: 'Relationship',
+            es: 'Relación'
+        }, 
     }
     return theTitles[thisTitle][language]
 }

@@ -1,9 +1,10 @@
 import { useState, useEffect, forwardRef } from 'react';
 import { Button, FormControl, FormControlLabel, FormHelperText, FormLabel, InputLabel, MenuItem, Radio, RadioGroup, Select, TextField, ToggleButton, ToggleButtonGroup } from '@mui/material'
-import { Send as SendIcon } from '@mui/icons-material';
+import { Language, Send as SendIcon } from '@mui/icons-material';
 import { Box } from '@mui/system';
 import { titles } from '../services/Titles'
 import { MongoAPI } from '../services/MongoDBAPI'
+import OthersGrid from './OthersGrid';
 
 // Helper function to check and set the error state for empty required fields
 const required = (reqFields) => {
@@ -18,15 +19,15 @@ const required = (reqFields) => {
 
 const validEmail = (emailAddr) => {
     let emailUser = emailAddr.substring(0, emailAddr.indexOf('@'))
-    let emailDomain = emailAddr.substring(emailAddr.indexOf('@')+1)
-    let emailOrg = emailDomain.substring(emailDomain.indexOf('.')+1)
+    let emailDomain = emailAddr.substring(emailAddr.indexOf('@') + 1)
+    let emailOrg = emailDomain.substring(emailDomain.indexOf('.') + 1)
     console.log(emailUser.length, emailDomain.length, emailOrg.length)
     return (emailUser.length === 0 || emailDomain.length === 0 || emailOrg.length === 0)
 }
 
 const validName = (thisName) => {
     let firstName = thisName.substring(0, thisName.indexOf(' '))
-    let lastName = thisName.substring(thisName.indexOf(' ')+1)
+    let lastName = thisName.substring(thisName.indexOf(' ') + 1)
     return (firstName.length === 0 || lastName.length === 0)
 }
 
@@ -42,7 +43,10 @@ export default function ApplicantPanel({ language, matches, setter }) {
         birthYear: '',
         maritalStatus: '',
         militaryBranch: [],
-        militaryService: ''
+        militaryService: '',
+        others: [{ name: '', age: '', relation: '' }, { name: '', age: '', relation: '' }],
+        lot: '',
+        repairs: ''
     })
     const [formOk, setFormOk] = useState(false)
     const [error, setError] = useState({})
@@ -51,6 +55,17 @@ export default function ApplicantPanel({ language, matches, setter }) {
     const handleSubmit = (e) => {
         checkForm()
         MongoAPI({ method: 'insertOne', db: 'HomeRepairApp', collection: 'App', data: { 'a3': 3 } }, setSaveResult, true)
+    };
+    const handleOther = ({ key, prop, value, addNew=false }) => {
+        // Grab the object
+        const thisOthers =  applicant.others
+        // Add a new array element or update the value
+        thisOthers = addNew ? thisOthers.push({name:'', age:'', relation:''}) : thisOthers[key][prop] = value
+        // Update state
+        setApplicant(appl => ({
+            ...appl,
+            ...thisOthers
+        }))
     };
     const handlePhone = (phoneKey, phoneValue) => {
         console.log(phoneValue, phoneValue.length, phoneValue.slice(-1), phoneKey, validKeys.includes(phoneValue.slice(-1)))
@@ -90,7 +105,7 @@ export default function ApplicantPanel({ language, matches, setter }) {
         setError(err => ({
             ...err,
             ...{ name: validName(applicant.name) }
-        }))   
+        }))
     }
 
     useEffect(() => {
@@ -104,7 +119,7 @@ export default function ApplicantPanel({ language, matches, setter }) {
 
     useEffect(() => {
         error && setFormOk(Object.values(error).every(item => item === false))
-    }, [error])   
+    }, [error])
 
     useEffect(() => {
         setError({})
@@ -130,6 +145,7 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         }))}
                         error={error.name}
                         required
+                        inputProps={{ size: 46 }}
                         type="text"
                     />
                 </Box>
@@ -145,6 +161,7 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         error={error.phone}
                         required
                         type="tel"
+                        sx={{ paddingRight: 1 }}
                     />
                     <TextField
                         id="altphone"
@@ -156,7 +173,7 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         onChange={(e) => handlePhone('altPhone', e.target.value)}
                         error={error.altphone}
                         type="tel"
-                        sx={{ paddingLeft: 1 }}
+
                     />
                 </Box>
                 <Box sx={{ padding: 0.5 }}>
@@ -275,14 +292,36 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         }))}
                         error={error.birth}
                         type="number"
-                        inputProps={{ min: "1900", max: "2000" }}
+                        inputProps={{ min: "1900", max: "2001" }}
+                        sx={{ paddingRight: 1 }}
+                    />
+
+                    <TextField
+                        id="lotNo"
+                        label={titles(language, 'CA_LOT')}
+                        helperText={titles(language, 'CA_LOTHELPER')}
+                        placeholder={titles(language, 'CA_LOT')}
+                        variant="filled"
+                        inputProps={{ 'data-lpignore': 'true' }}
+                        value={applicant.lotNo}
+                        onChange={(e) => setApplicant(appl => ({
+                            ...appl,
+                            ...{ email: e.target.value }
+                        }))}
+                        error={error.lotNo}
+                        inputProps={{ size: 14 }}
+                        type="text"
+
                     />
                 </Box>
-                <Box sx={{ padding: 0.5 }}>
-                    <TextField
+                <Box sx={{ padding: 0.5, width: 'max-content' }}>
+                    <OthersGrid
                         id="others"
-                        label='Others living in home (name/age/relationship)'
-                        placeholder={titles(language, 'CA_EMAILADDR')}
+                        others={applicant.others}
+                        setter={handleOther}
+                        language={language}
+                        label={titles(language, 'CA_OTHERS')}
+                        placeholder={titles(language, 'CA_OTHERS')}
                         variant="filled"
                         inputProps={{ 'data-lpignore': 'true' }}
                         value={applicant.others}
@@ -295,30 +334,14 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         inputProps={{ size: 46 }}
                         type="text"
                     />
-                </Box>    
-                <Box sx={{ padding: 0.5 }}>
-                    <TextField
-                        id="lotNo"
-                        label='Lot or Apartment Number'
-                        placeholder={titles(language, 'CA_EMAILADDR')}
-                        variant="filled"
-                        inputProps={{ 'data-lpignore': 'true' }}
-                        value={applicant.lotNo}
-                        onChange={(e) => setApplicant(appl => ({
-                            ...appl,
-                            ...{ email: e.target.value }
-                        }))}
-                        error={error.lotNo}
-                        required
-                        inputProps={{ size: 46 }}
-                        type="text"
-                    />
-                </Box>      
+                </Box>
+
+
                 <Box sx={{ padding: 0.5 }}>
                     <TextField
                         id="repairs"
-                        label='repairs'
-                        placeholder={titles(language, 'CA_EMAILADDR')}
+                        label={titles(language, 'CA_REPAIRS')}
+                        placeholder={titles(language, 'CA_REPAIRS')}
                         variant="filled"
                         inputProps={{ 'data-lpignore': 'true' }}
                         value={applicant.repairs}
@@ -331,7 +354,7 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         inputProps={{ size: 46 }}
                         type="text"
                     />
-                </Box>                                           
+                </Box>
             </form>
         </div>
     )
