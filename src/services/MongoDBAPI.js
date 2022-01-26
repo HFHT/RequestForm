@@ -1,6 +1,6 @@
 // Azure serverless functions are utilized to access the MongoDB
 
-export async function MongoAPI( req, setter ) {
+export async function MongoAPI( req, setter, isObj=false ) {
     const headers = new Headers();
 
     const options = {
@@ -16,7 +16,7 @@ export async function MongoAPI( req, setter ) {
 
     return fetch(`${baseURL}/api/HFHTMongoAPI?req=${JSON.stringify(req)}`, options)
         .then(response => response.json())
-        .then(data => {setter(data[0])})
+        .then(data => {isObj ? setter(data) : setter(data[0])})
         .catch(error => console.log(error));
 
 }

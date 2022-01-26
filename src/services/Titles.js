@@ -75,16 +75,16 @@ export const titles = (language, thisTitle) => {
             es: 'Teléfono'
         },     
         "CA_PHONENUMBER": {
-            en: 'Phone Number',
-            es: 'Número de teléfono'
+            en: '(520) 555-1212',
+            es: '(520) 555-1212'
         },     
         "CA_ALTPHONE": {
             en: 'Alternate Phone',
             es: 'Teléfono alternativo'
         },     
         "CA_ALTPHONENUMBER": {
-            en: 'Alternate Phone Number',
-            es: 'Número de teléfono alternativo'
+            en: '(520) 555-1212',
+            es: '(520) 555-1212'
         },   
         "CA_EMAIL": {
             en: 'Email',

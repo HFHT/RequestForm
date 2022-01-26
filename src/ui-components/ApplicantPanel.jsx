@@ -3,33 +3,112 @@ import { Button, FormControl, FormControlLabel, FormHelperText, FormLabel, Input
 import { Send as SendIcon } from '@mui/icons-material';
 import { Box } from '@mui/system';
 import { titles } from '../services/Titles'
+import { MongoAPI } from '../services/MongoDBAPI'
+
+// Helper function to check and set the error state for empty required fields
+const required = (reqFields) => {
+    if (reqFields.length < 1) { return null }
+    let errorObj = {}
+    reqFields.forEach(rObj => {
+        let rKey = Object.keys(rObj)
+        errorObj[rKey[0]] = rObj[rKey[0]] === ''
+    });
+    return errorObj
+}
+
+const validEmail = (emailAddr) => {
+    let emailUser = emailAddr.substring(0, emailAddr.indexOf('@'))
+    let emailDomain = emailAddr.substring(emailAddr.indexOf('@')+1)
+    let emailOrg = emailDomain.substring(emailDomain.indexOf('.')+1)
+    console.log(emailUser.length, emailDomain.length, emailOrg.length)
+    return (emailUser.length === 0 || emailDomain.length === 0 || emailOrg.length === 0)
+}
+
+const validName = (thisName) => {
+    let firstName = thisName.substring(0, thisName.indexOf(' '))
+    let lastName = thisName.substring(thisName.indexOf(' ')+1)
+    return (firstName.length === 0 || lastName.length === 0)
+}
+
+const validKeys = ['(', ')', '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 
 export default function ApplicantPanel({ language, matches, setter }) {
-    const [name, setName] = useState('')
-    const [phone, setPhone] = useState('')
-    const [altPhone, setAltPhone] = useState('')
-    const [email, setEmail] = useState('')
-    const [gender, setGender] = useState('')
-    const [birthYear, setBirthYear] = useState('')
-    const [maritalStatus, setMaritalStatus] = useState('')
-    const [militaryBranch, setMilitaryBranch] = useState([])
-    const [militaryService, setMilitaryService] = useState('')
-
-    const [contactErrors, setContactErrors] = useState({
-        name: false,
-        phone: false,
-        altphone: false,
-        email: false,
-        msDates: false,
-        birth: false
+    const [applicant, setApplicant] = useState({
+        name: '',
+        phone: '',
+        altPhone: '',
+        email: '',
+        gender: '',
+        birthYear: '',
+        maritalStatus: '',
+        militaryBranch: [],
+        militaryService: ''
     })
-    const error = {}
-    const handleChange = (event, newAlignment) => {
-        setGender(newAlignment);
+    const [formOk, setFormOk] = useState(false)
+    const [error, setError] = useState({})
+    const [saveResult, setSaveResult] = useState(null)
+
+    const handleSubmit = (e) => {
+        checkForm()
+        MongoAPI({ method: 'insertOne', db: 'HomeRepairApp', collection: 'App', data: { 'a3': 3 } }, setSaveResult, true)
     };
-    const handleSubmit = (event) => {
-        console.log(event)
-    };
+    const handlePhone = (phoneKey, phoneValue) => {
+        console.log(phoneValue, phoneValue.length, phoneValue.slice(-1), phoneKey, validKeys.includes(phoneValue.slice(-1)))
+        if (phoneValue && !validKeys.includes(phoneValue.slice(-1))) { return }
+        if (phoneValue.slice(-1) === '(' && phoneValue.length !== 1) { return }
+        if (phoneValue.slice(-1) === ')' && phoneValue.length !== 5) { return }
+        if (phoneValue.slice(-1) === '-' && phoneValue.length !== 9) { return }
+        if (phoneValue.length > 16) { return }
+        let onlyNumber = phoneValue.replace(/\D/g, '')
+        let areaCode = onlyNumber.substring(0, 3)
+        let centlOfc = onlyNumber.substring(3, 6)
+        let subscriber = onlyNumber.substring(6, 10)
+        let formattedNumber = ''
+        if (onlyNumber.length > 6 || phoneValue.slice(-1) === '-') {
+            formattedNumber = `(${areaCode})${centlOfc}-${subscriber}`
+        } else {
+            if (onlyNumber.length > 3 || phoneValue.slice(-1) === ')') {
+                formattedNumber = `(${areaCode})${centlOfc}`
+            } else {
+                if (onlyNumber.length > 0 || phoneValue.slice(-1) === '(') {
+                    formattedNumber = `(${areaCode}`
+                }
+            }
+        }
+        setApplicant(appl => ({
+            ...appl,
+            ...{ [phoneKey]: formattedNumber }
+        }))
+    }
+
+    const checkForm = () => {
+        setError(required([{ name: applicant.name }, { email: applicant.email }, { phone: applicant.phone }, { gender: applicant.gender }, { maritalStatus: applicant.maritalStatus }]))
+        setError(err => ({
+            ...err,
+            ...{ email: validEmail(applicant.email) }
+        }))
+        setError(err => ({
+            ...err,
+            ...{ name: validName(applicant.name) }
+        }))   
+    }
+
+    useEffect(() => {
+        saveResult && saveResult.hasOwnProperty('acknowledged') &&
+            console.log(saveResult)
+    }, [saveResult])
+
+    useEffect(() => {
+        checkForm()
+    }, [applicant])
+
+    useEffect(() => {
+        error && setFormOk(Object.values(error).every(item => item === false))
+    }, [error])   
+
+    useEffect(() => {
+        setError({})
+    }, [])
 
     return (
         <div>
@@ -44,8 +123,11 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         label={titles(language, 'CA_NAME')}
                         variant="filled"
                         inputProps={{ 'data-lpignore': 'true' }}
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        value={applicant.name}
+                        onChange={(e) => setApplicant(appl => ({
+                            ...appl,
+                            ...{ name: e.target.value }
+                        }))}
                         error={error.name}
                         required
                         type="text"
@@ -58,8 +140,8 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         label={titles(language, 'CA_PHONE')}
                         variant="filled"
                         inputProps={{ 'data-lpignore': 'true' }}
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
+                        value={applicant.phone}
+                        onChange={(e) => handlePhone('phone', e.target.value)}
                         error={error.phone}
                         required
                         type="tel"
@@ -70,11 +152,11 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         label={titles(language, 'CA_ALTPHONE')}
                         variant="filled"
                         inputProps={{ 'data-lpignore': 'true' }}
-                        value={altPhone}
-                        onChange={(e) => setAltPhone(e.target.value)}
+                        value={applicant.altPhone}
+                        onChange={(e) => handlePhone('altPhone', e.target.value)}
                         error={error.altphone}
                         type="tel"
-                        sx={{ paddingLeft: 1}}
+                        sx={{ paddingLeft: 1 }}
                     />
                 </Box>
                 <Box sx={{ padding: 0.5 }}>
@@ -84,8 +166,11 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         placeholder={titles(language, 'CA_EMAILADDR')}
                         variant="filled"
                         inputProps={{ 'data-lpignore': 'true' }}
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        value={applicant.email}
+                        onChange={(e) => setApplicant(appl => ({
+                            ...appl,
+                            ...{ email: e.target.value }
+                        }))}
                         error={error.email}
                         required
                         inputProps={{ size: 46 }}
@@ -93,28 +178,37 @@ export default function ApplicantPanel({ language, matches, setter }) {
                     />
                 </Box>
                 <Box sx={{ paddingTop: 0.5 }}>
-                    <FormControl variant="filled" sx={{ m: 1, minWidth: 120 }}>
+                    <FormControl variant="filled" sx={{ m: 1, minWidth: 120 }} required>
                         <InputLabel id="gender-select-label">{titles(language, 'CA_GENDER')}</InputLabel>
                         <Select
                             labelId="gender-select-label"
                             id="gender-select"
-                            value={gender}
+                            value={applicant.gender}
                             label={titles(language, 'CA_GENDER')}
-                            onChange={(e) => setGender(e.target.value)}
+                            onChange={(e) => setApplicant(appl => ({
+                                ...appl,
+                                ...{ gender: e.target.value }
+                            }))}
+                            error={error.gender}
+
                         >
                             <MenuItem value={'female'}>{titles(language, 'CA_GENFEMALE')}</MenuItem>
                             <MenuItem value={'male'}>{titles(language, 'CA_GENMALE')}</MenuItem>
                             <MenuItem value={'na'}>{titles(language, 'CA_GENNA')}</MenuItem>
                         </Select>
                     </FormControl>
-                    <FormControl variant="filled" sx={{ m: 1, minWidth: 150 }}>
+                    <FormControl variant="filled" sx={{ m: 1, minWidth: 150 }} required>
                         <InputLabel id="marital-select-label">{titles(language, 'CA_MARITAL')}</InputLabel>
                         <Select
                             labelId="marital-select-label"
                             id="marital-select"
-                            value={maritalStatus}
+                            value={applicant.maritalStatus}
                             label={titles(language, 'CA_MARITAL')}
-                            onChange={(e) => setMaritalStatus(e.target.value)}
+                            onChange={(e) => setApplicant(appl => ({
+                                ...appl,
+                                ...{ maritalStatus: e.target.value }
+                            }))}
+                            error={error.maritalStatus}
                         >
                             <MenuItem value={'Married'}>{titles(language, 'CA_MSMARRIED')}</MenuItem>
                             <MenuItem value={'Single'}>{titles(language, 'CA_MSSINGLE')}</MenuItem>
@@ -130,10 +224,13 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         <Select
                             labelId="military-select-label"
                             id="military-select"
-                            value={militaryBranch}
+                            value={applicant.militaryBranch}
                             label={titles(language, 'CA_MILBRANCH')}
                             multiple
-                            onChange={(e) => setMilitaryBranch(e.target.value)}
+                            onChange={(e) => setApplicant(appl => ({
+                                ...appl,
+                                ...{ militaryBranch: e.target.value }
+                            }))}
                         >
 
                             <MenuItem value={'Army'}>{titles(language, 'CA_MBARMY')}</MenuItem>
@@ -154,8 +251,11 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         placeholder={titles(language, 'CA_MSDATES')}
                         variant="filled"
                         inputProps={{ 'data-lpignore': 'true' }}
-                        value={militaryService}
-                        onChange={(e) => setMilitaryService(e.target.value)}
+                        value={applicant.militaryService}
+                        onChange={(e) => setApplicant(appl => ({
+                            ...appl,
+                            ...{ militaryService: e.target.value }
+                        }))}
                         error={error.msDates}
                         type="text"
                         sx={{ paddingTop: 1 }}
@@ -168,15 +268,71 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         placeholder={titles(language, 'CA_BIRTHYEAR')}
                         variant="filled"
                         inputProps={{ 'data-lpignore': 'true' }}
-                        value={birthYear}
-                        onChange={(e) => setBirthYear(e.target.value)}
+                        value={applicant.birthYear}
+                        onChange={(e) => setApplicant(appl => ({
+                            ...appl,
+                            ...{ birthYear: e.target.value }
+                        }))}
                         error={error.birth}
                         type="number"
                         inputProps={{ min: "1900", max: "2000" }}
                     />
                 </Box>
+                <Box sx={{ padding: 0.5 }}>
+                    <TextField
+                        id="others"
+                        label='Others living in home (name/age/relationship)'
+                        placeholder={titles(language, 'CA_EMAILADDR')}
+                        variant="filled"
+                        inputProps={{ 'data-lpignore': 'true' }}
+                        value={applicant.others}
+                        onChange={(e) => setApplicant(appl => ({
+                            ...appl,
+                            ...{ email: e.target.value }
+                        }))}
+                        error={error.others}
+                        required
+                        inputProps={{ size: 46 }}
+                        type="text"
+                    />
+                </Box>    
+                <Box sx={{ padding: 0.5 }}>
+                    <TextField
+                        id="lotNo"
+                        label='Lot or Apartment Number'
+                        placeholder={titles(language, 'CA_EMAILADDR')}
+                        variant="filled"
+                        inputProps={{ 'data-lpignore': 'true' }}
+                        value={applicant.lotNo}
+                        onChange={(e) => setApplicant(appl => ({
+                            ...appl,
+                            ...{ email: e.target.value }
+                        }))}
+                        error={error.lotNo}
+                        required
+                        inputProps={{ size: 46 }}
+                        type="text"
+                    />
+                </Box>      
+                <Box sx={{ padding: 0.5 }}>
+                    <TextField
+                        id="repairs"
+                        label='repairs'
+                        placeholder={titles(language, 'CA_EMAILADDR')}
+                        variant="filled"
+                        inputProps={{ 'data-lpignore': 'true' }}
+                        value={applicant.repairs}
+                        onChange={(e) => setApplicant(appl => ({
+                            ...appl,
+                            ...{ email: e.target.value }
+                        }))}
+                        error={error.repairs}
+                        required
+                        inputProps={{ size: 46 }}
+                        type="text"
+                    />
+                </Box>                                           
             </form>
-
         </div>
     )
 }
