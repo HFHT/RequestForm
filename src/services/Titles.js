@@ -210,17 +210,21 @@ export const titles = (language, thisTitle) => {
             en: 'Fill out this form -> Click when Done',
             es: 'Complete este formulario -> Haga clic cuando haya terminado'
         }, 
+        "OT_HEADER": {
+            en: 'List the members of the household',
+            es: 'Enumere los miembros del hogar'
+        },         
         "OT_NAME": {
-            en: 'Their Name',
-            es: 'Su nombre'
+            en: 'Their Name *',
+            es: 'Su nombre *'
         }, 
         "OT_AGE": {
-            en: 'Their Age',
-            es: 'Su edad'
+            en: 'Their Age *',
+            es: 'Su edad *'
         }, 
         "OT_RELATION": {
-            en: 'Relationship',
-            es: 'Relación'
+            en: 'Relationship *',
+            es: 'Relación *'
         }, 
     }
     return theTitles[thisTitle][language]

@@ -1,19 +1,19 @@
-import { useState, useEffect } from 'react';
-import { TextField, ToggleButtonGroup, Stack, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
-
+import { TextField, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
 import { Item } from './Item';
 import { titles } from '../services/Titles'
 
-
 export default function OthersGrid({ language, others = [], error = {}, matches, setter }) {
   return (
-    <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 300, maxWidth: 500 }} aria-label="Others in household">
+    <TableContainer component={Paper} elevation={5} sx={{ marginTop: 1 }}>
+      <Table sx={{ minWidth: 300, maxWidth: 500 }} padding='none' aria-label="Others in household">
         <TableHead>
           <TableRow>
+            <TableCell colSpan={3}><Item elevation={0}><h3 style={{ marginBottom: 3, marginTop: 0 }}>{titles(language, 'OT_HEADER')}</h3></Item></TableCell>
+          </TableRow>
+          <TableRow>
             <TableCell><Item elevation={0}><b><i>{titles(language, 'OT_NAME')}</i></b></Item></TableCell>
-            <TableCell align="right"><Item elevation={0}><b><i>{titles(language, 'OT_AGE')}</i></b></Item></TableCell>
-            <TableCell align="right"><Item elevation={0}><b><i>{titles(language, 'OT_RELATION')}</i></b></Item></TableCell>
+            <TableCell><Item elevation={0}><b><i>{titles(language, 'OT_AGE')}</i></b></Item></TableCell>
+            <TableCell><Item elevation={0}><b><i>{titles(language, 'OT_RELATION')}</i></b></Item></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -23,31 +23,32 @@ export default function OthersGrid({ language, others = [], error = {}, matches,
               hover={true}
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
-              <TableCell>
+              <TableCell sx={{ paddingRight: 0.5 }}>
                 <TextField
                   id="name"
                   placeholder={titles(language, 'OT_NAME')}
-                  label={titles(language, 'OT_NAME')}
                   variant="filled"
+                  size="small"
                   inputProps={{ 'data-lpignore': 'true' }}
                   value={o.name}
                   onChange={(e) => setter({ key: i, prop: 'name', value: e.target.value })}
-                  error={error.other}
-                  inputProps={{ size: 46 }}
+                  error={error.others}
+                  required                  
+                  inputProps={{ size: 40 }}
                   type="text"
                 />
               </TableCell>
-              <TableCell>
+              <TableCell sx={{ paddingRight: 0.5 }}>
                 <TextField
                   id="age"
                   placeholder={titles(language, 'OT_AGE')}
-                  label={titles(language, 'OT_AGE')}
                   variant="filled"
+                  size="small"                  
                   inputProps={{ 'data-lpignore': 'true' }}
                   value={o.age}
                   onChange={(e) => setter({ key: i, prop: 'age', value: e.target.value })}
-                  error={error.other}
-                  inputProps={{ size: 46 }}
+                  required                  
+                  inputProps={{ size: 10 }}
                   type="text"
                 />
               </TableCell>
@@ -55,20 +56,19 @@ export default function OthersGrid({ language, others = [], error = {}, matches,
                 <TextField
                   id="relation"
                   placeholder={titles(language, 'OT_RELATION')}
-                  label={titles(language, 'OT_RELATION')}
                   variant="filled"
+                  size="small"                  
                   inputProps={{ 'data-lpignore': 'true' }}
                   value={o.relation}
                   onChange={(e) => setter({ key: i, prop: 'relation', value: e.target.value })}
-                  error={error.other}
-                  inputProps={{ size: 46 }}
+                  required                  
+                  inputProps={{ size: 10 }}
                   type="text"
                 />
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
-
       </Table>
     </TableContainer>
   )
