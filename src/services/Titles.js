@@ -211,8 +211,8 @@ export const titles = (language, thisTitle) => {
             es: 'Complete este formulario -> Haga clic cuando haya terminado'
         }, 
         "OT_HEADER": {
-            en: 'List the members of the household',
-            es: 'Enumere los miembros del hogar'
+            en: 'List the members of the household (or type none)',
+            es: 'Enumere los miembros del hogar (o escriba ninguno)'
         },         
         "OT_NAME": {
             en: 'Their Name *',
