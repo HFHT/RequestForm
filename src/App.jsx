@@ -63,7 +63,7 @@ function App(props) {
   const [selectedRepairs, setSelectedRepairs] = useState('')
   const [lastQuestion, setLastQuestion] = useState(false)
   const [questionsDone, setQuestionsDone] = useState(false)
-  const [filloutApp, setFilloutApp] = useState(false)
+  const [filloutApp, setFilloutApp] = useState(false)  /* tri state false - initial, yes - proceed, no - abort */
   const [applicant, setApplicant] = useState({})
   const [applicantDone, setApplicantDone] = useState(false)
 
@@ -185,13 +185,13 @@ function App(props) {
     }
     console.log(parseCookie(document.cookie))
     console.log(whichBrowser())
-      
+
   }, [instructions])
 
-    // 3 - Once all the cookie states have been restored, release the display of the UI
-    useEffect(() => {
-      setAwaitRelease(true)
-    }, [awaitStateRestore])
+  // 3 - Once all the cookie states have been restored, release the display of the UI
+  useEffect(() => {
+    setAwaitRelease(true)
+  }, [awaitStateRestore])
 
   // Saving the current state to a cookie  
   // When the cookie object is updated, save the cookie
@@ -283,8 +283,10 @@ function App(props) {
               yesTranslate={yesTranslate} />}
           {questionsDone && selectedRepairs === "" && <RepairListPanel repairs={repairs} setRepairs={setRepairs} language={language} setSelectedRepairs={setSelectedRepairs} matches={matches} />}
           {questionsDone && selectedRepairs && selectedRepairs !== "" && !filloutApp && <ResultPanel language={language} programList={programList} programs={programs} answers={answers} selectedRepairs={selectedRepairs} setter={setFilloutApp} matches={matches} />}
-          {questionsDone && filloutApp && !applicantDone && <ApplicantPanel language={language} programList={programList} programs={programs} answers={answers} selectedRepairs={selectedRepairs} setter={setApplicant} />}
+          {questionsDone && filloutApp === 'yes' && !applicantDone && <ApplicantPanel language={language} programList={programList} programs={programs} answers={answers} selectedRepairs={selectedRepairs} setter={setApplicant} />}
           {questionsDone && applicantDone && <Submitted />}
+          {questionsDone && filloutApp === 'no' && <h3>Cancelled</h3>}
+
           <Dialog
             open={rejectMsg !== null}
             onClose={handleClose}

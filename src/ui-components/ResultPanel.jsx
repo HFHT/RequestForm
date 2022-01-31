@@ -20,8 +20,12 @@ export default function ResultPanel({ language, programList, programs, answers, 
     const [matchPrograms, setMatchPrograms] = useState(null)
     const [alignment, setAlignment] = useState('yes')
     const handleChange = ((e, newAlignment) => {
-        setAlignment(newAlignment)
-        setter(newAlignment)
+        console.log(newAlignment)
+        let thisAlignment = newAlignment
+        // MUI toggle group, when an item is deselcted it sends a null
+        if (!newAlignment) { thisAlignment = 'yes'}
+        setAlignment(thisAlignment)
+        setter(thisAlignment)
     })
 
     // Determine which repair programs the applicant is eligible for

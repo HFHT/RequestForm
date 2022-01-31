@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { ToggleButton, ToggleButtonGroup, Stack, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
 
 import { Item } from './Item';
@@ -43,7 +43,7 @@ const Incomex = ({ open, language, income, subHeader, matches }) => {
           <Item elevation={0}><h3>{subHeader}</h3></Item>
           <Item>
             <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 150 }, { maxWidth: 400 }} size="small" aria-label="a dense table">
+              <Table sx={{ minWidth: 150, maxWidth: 400 }} size="small" aria-label="a dense table">
                 <TableHead>
                   <TableRow>
                     <TableCell style={{ width: "50%" }} size="small" align="center">{titles(language, 'QP_SIZE')}</TableCell>
