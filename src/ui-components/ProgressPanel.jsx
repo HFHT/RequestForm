@@ -31,6 +31,16 @@ export default function ProgressPanel({ answers, yesTranslate, setAnswers, langu
                         <Chip variant="outlined" color="success" label={language === 'en' ? 'Home Owner' : 'Propietario de casa'} size="small" icon={<CheckIcon />} />
                     </Grid>
                 }
+                {isYes(answers.MfgHome) &&
+                    <Grid item >
+                        <Chip variant="outlined" color="success" label={language === 'en' ? 'Mfg Home' : 'Casa Fabricada'} size="small" icon={<CheckIcon />} />
+                    </Grid>
+                }                
+                {isYes(answers.haveIns) &&
+                    <Grid item >
+                        <Chip variant="outlined" color="success" label={language === 'en' ? 'Insurance' : 'Seguro'} size="small" icon={<CheckIcon />} />
+                    </Grid>
+                }                
                 {isYes(answers.Income) &&
                     <Grid item >
                         <Chip variant="outlined" color="success" label={language === 'en' ? 'Income' : 'Ingreso'} size="small" icon={<CheckIcon />} />

@@ -14,15 +14,6 @@ import { Item } from './ui-components/Item';
 import { titles } from './services/Titles'
 import { whichBrowser } from './services/WhichBrowser';
 import { parseCookie, getExpiration, saveCookie } from './services/HandleCookie';
-import { ConstructionOutlined } from '@mui/icons-material';
-
-const dbDate = () => {
-  /* fix the following for time zone */
-  //  return new Date().toISOString().split('T')[0]
-  var dateObj = new Date()
-  dateObj.setHours(dateObj.getHours() - 7)
-  return dateObj.toISOString().substr(0, 10)
-}
 
 // Helper function to update the answers state 
 const updateAnswer = ({ ansKey, ansValue, setter }) => {
@@ -36,7 +27,6 @@ const updateAnswer = ({ ansKey, ansValue, setter }) => {
 }
 
 function App(props) {
-  console.log(props)
   const matches = useMediaQuery('(min-width:600px)')
   const [cookies, setCookies] = useState({
     "Expires": getExpiration(30),
@@ -56,7 +46,6 @@ function App(props) {
   })
   const [awaitStateRestore, setAwaitStateRestore] = useState(false)
   const [awaitRelease, setAwaitRelease] = useState(false)
-  const [hasAlert, setHasAlert] = useState(null)
   const [instructions, setInstructions] = useState(null)
   const [questions, setQuestions] = useState([])
   const [programList, setProgramList] = useState([])
@@ -82,7 +71,6 @@ function App(props) {
   const handleChange = (event, language) => {
     setLanguage(language);
     setYesTranslate(language === 'en' ? "yes" : "sí")
-    console.log(event.target.value)
   };
 
   // Handle dialog close events, prevent the user from clicking away the modal.
@@ -90,11 +78,9 @@ function App(props) {
     if (reason === 'clickaway') {
       return;
     }
-    setHasAlert(null);
   };
 
   const handleProceed = (event) => {
-    console.log(event)
     setRejectMsg(null)
   }
 
@@ -115,7 +101,6 @@ function App(props) {
           return true
       }
     })
-    console.log(filterQuestions)
     if (filterQuestions.length !== 0) {
       setQuestions(filterQuestions)
     }
@@ -126,34 +111,21 @@ function App(props) {
   // also check this answer to determine if any subsequent questions can be skipped
   // by updating the questions state, a corresponding useEffect will fire
   const handleAnswer = ({ mode, clientAns, ansKey, reject, rejectMsg, skip, proceed }) => {
-    console.log(clientAns, ansKey, reject, rejectMsg, proceed)
     updateAnswer({ ansKey: ansKey, ansValue: clientAns, setter: setAnswers })
     if (reject.indexOf(clientAns) > -1) {
-      console.log(rejectMsg)
       setProceed(proceed)
       setRejectMsg(rejectMsg)
     }
     if (mode === 'shift') {
       let curQuestions = [...questions]
-      console.log(curQuestions)
       curQuestions.shift()
       if (skip.hasOwnProperty('ans')) {
-        console.log(skip)
         if (skip.ans.indexOf(clientAns) > -1) {
           curQuestions.shift()
         }
       }
       setQuestions(curQuestions)
     }
-  }
-
-  var applicantPrototype = {
-    "_id": 0,
-    "Version": 0,
-    "Date": dbDate(),
-    "Language": "en",
-    "Answers": [
-    ]
   }
 
   //The following three useEffect prepare the environment
@@ -178,7 +150,6 @@ function App(props) {
 
   // 2- When the fetch from the database completes set all the needed state variables with it's contents
   useEffect(() => {
-    console.log(instructions)
     instructions && instructions.hasOwnProperty('Questions') &&
       setQuestions(instructions.Questions)
     instructions && instructions.hasOwnProperty('Questions') &&
@@ -238,19 +209,16 @@ function App(props) {
 
   // 1- When the client has provided the address update the cookie
   useEffect(() => {
-    console.log('addressinfo', addressInfo)
     addressInfo && addressInfo.hasOwnProperty('address_components') && setCookies(thisCookie => ({ ...thisCookie, addressInfo }))
   }, [addressInfo])
 
   // 2- When the client has provided an answer to a question update the cookie
   useEffect(() => {
-    console.log('answers', answers, Object.keys(answers))
     answers && Object.keys(answers).length > 0 && setCookies(thisCookie => ({ ...thisCookie, answers }))
   }, [answers])
 
   // 3- When an item is added or removed from the questions array, set the current question, also test for if it is the last question
   useEffect(() => {
-    console.log('question state', questions)
     lastQuestion && setQuestionsDone(true)
     questions[0] && questions[0].hasOwnProperty('done') && questions[0].done === "yes" &&
       setLastQuestion(true)
@@ -259,7 +227,6 @@ function App(props) {
 
   // 4- When the client has finished specifying the repairs, update the progress state and cookie
   useEffect(() => {
-    console.log('repairList state', selectedRepairs)
     selectedRepairs !== '' &&
       handleAnswer({ mode: null, ansKey: "Repairs", clientAns: "yes", reject: [], rejectMsg: null, skip: {} })
     selectedRepairs !== '' && setCookies(thisCookie => ({ ...thisCookie, selectedRepairs }))
@@ -267,7 +234,6 @@ function App(props) {
 
   // 5- When the client has finished fillout out form, set done
   useEffect(() => {
-    console.log('applicant', applicant)
     applicant && applicant.hasOwnProperty('name') && setApplicantDone(true)
     applicant && applicant.hasOwnProperty('name') && setCookies(thisCookie => ({ ...thisCookie, applicant }))
   }, [applicant])

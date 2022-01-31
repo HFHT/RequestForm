@@ -1,13 +1,9 @@
 export const parseCookie = str => {
-    console.log(str)
-    const thisObj = {a: '123', b: 456}
-    console.log(JSON.stringify(thisObj))
     if (str.length === 0) { return str }
     return str
         .split('; ')
         .reduce((acc, v) => {
             const [name, ...value] = v.split('=')
-            console.log(name, value)
             let jsonStr = isJSON(value[0])
             if (jsonStr) {
                 acc[name] = jsonStr
@@ -19,7 +15,6 @@ export const parseCookie = str => {
 }
 
 export const isJSON = str => {
-    console.log(str)
     try {
         var o = JSON.parse(str)
         if (o && typeof o === 'object') { return o }
@@ -35,7 +30,6 @@ export const getExpiration = (offset) => {
 }
 
 export const saveCookie = ({name, value}) => {
-    console.log('saveCookie',name,value)
     document.cookie = `${name}=${JSON.stringify(value)}; expires=${value.Expires}`
 }
 

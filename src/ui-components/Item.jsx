@@ -1,4 +1,4 @@
-import { Paper, Button } from '@mui/material'
+import { Paper } from '@mui/material'
 import { styled } from '@mui/material/styles';
 
 export const Item = styled(Paper)(({ theme }) => ({

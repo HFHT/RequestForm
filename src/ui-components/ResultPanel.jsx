@@ -1,6 +1,5 @@
-import { useState, useEffect, forwardRef } from 'react';
-import { Button, ToggleButtonGroup, ToggleButton, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material'
-import { Task as TaskIcon } from '@mui/icons-material';
+import { useState, useEffect } from 'react';
+import { ToggleButtonGroup, ToggleButton, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material'
 import { titles } from '../services/Titles'
 
 // Check to see if all selected repairs are part of the program
@@ -9,7 +8,6 @@ const checkRepairs = (selected, allowed) => {
     let theseRepairs = selected.map((r) => {
         return Object.keys(r)[0]
     })
-    console.log(theseRepairs, allowed)
     return checker(theseRepairs, allowed)
 }
 
@@ -19,26 +17,21 @@ const checker = (selected, allowed) => selected.every(s => {
 });
 
 export default function ResultPanel({ language, programList, programs, answers, selectedRepairs, matches, setter }) {
-    console.log(programList, programs, answers, selectedRepairs)
     const [matchPrograms, setMatchPrograms] = useState(null)
     const [alignment, setAlignment] = useState('yes')
     const handleChange = ((e, newAlignment) => {
-        console.log(e, newAlignment)
         setAlignment(newAlignment)
         setter(newAlignment)
     })
 
     // Determine which repair programs the applicant is eligible for
     useEffect(() => {
-        console.log(selectedRepairs)
         let filterPrograms = programList.filter((p) => {
-            console.log(p)
             if (p.Active) {
                 if (p.hasOwnProperty('Repair') && !checkRepairs(selectedRepairs, p.Repair)) {
                     return false
                 }
                 if (p.hasOwnProperty('ck')) {
-                    console.log(p.ck)
                     // need to handle spanish!!!!
                     return (answers[p.ck.ans] === p.ck.val)
                 }
@@ -47,7 +40,6 @@ export default function ResultPanel({ language, programList, programs, answers, 
                 return false
             }
         })
-        console.log(filterPrograms)
         setMatchPrograms(filterPrograms)
     }, [])
 
@@ -74,7 +66,7 @@ export default function ResultPanel({ language, programList, programs, answers, 
                                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                             >
                                                 {p.Funding && <TableCell>{p.r[language]}</TableCell>}
-                                                {!p.Funding && <TableCell>{p.r[language]}<br /><b><i>{p.f[language]}</i></b></TableCell>}                                                
+                                                {!p.Funding && <TableCell>{p.r[language]}<br /><b><i>{p.f[language]}</i></b></TableCell>}
                                                 <TableCell align="right">{programs.Programs[p.Program]}</TableCell>
                                             </TableRow>
                                         ))}

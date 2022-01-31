@@ -1,6 +1,6 @@
-import { useState, useEffect, forwardRef } from 'react';
-import { Button, FormControl, FormControlLabel, FormHelperText, FormLabel, InputLabel, MenuItem, Radio, RadioGroup, Select, TextField, ToggleButton, ToggleButtonGroup } from '@mui/material'
-import { Language, Send as SendIcon } from '@mui/icons-material';
+import { useState, useEffect } from 'react';
+import { Button, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from '@mui/material'
+import { Send as SendIcon } from '@mui/icons-material';
 import { Box } from '@mui/system';
 import { titles } from '../services/Titles'
 import { MongoAPI } from '../services/MongoDBAPI'
@@ -169,7 +169,6 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         placeholder={titles(language, 'CA_YOURNAME')}
                         label={titles(language, 'CA_NAME')}
                         variant="filled"
-                        inputProps={{ 'data-lpignore': 'true' }}
                         value={applicant.name}
                         onChange={(e) => setApplicant(appl => ({
                             ...appl,
@@ -177,7 +176,7 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         }))}
                         error={error.name}
                         required
-                        inputProps={{ size: 46 }}
+                        inputProps={{ size: 46, 'data-lpignore': 'true' }}
                         type="text"
                     />
                 </Box>
@@ -213,7 +212,6 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         label={titles(language, 'CA_EMAIL')}
                         placeholder={titles(language, 'CA_EMAILADDR')}
                         variant="filled"
-                        inputProps={{ 'data-lpignore': 'true' }}
                         value={applicant.email}
                         onChange={(e) => setApplicant(appl => ({
                             ...appl,
@@ -221,7 +219,7 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         }))}
                         error={error.email}
                         required
-                        inputProps={{ size: 46 }}
+                        inputProps={{ size: 46, 'data-lpignore': 'true' }}
                         type="email"
                     />
                 </Box>
@@ -313,7 +311,6 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         label={titles(language, 'CA_BIRTHYEAR')}
                         placeholder={titles(language, 'CA_BIRTHYEAR')}
                         variant="filled"
-                        inputProps={{ 'data-lpignore': 'true' }}
                         value={applicant.birthYear}
                         onChange={(e) => setApplicant(appl => ({
                             ...appl,
@@ -321,7 +318,7 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         }))}
                         error={error.birth}
                         type="number"
-                        inputProps={{ min: "1900", max: "2001" }}
+                        inputProps={{ min: "1900", max: "2001", 'data-lpignore': 'true' }}
                         sx={{ paddingRight: 1 }}
                     />
                     <TextField
@@ -330,14 +327,13 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         helperText={titles(language, 'CA_LOTHELPER')}
                         placeholder={titles(language, 'CA_LOT')}
                         variant="filled"
-                        inputProps={{ 'data-lpignore': 'true' }}
                         value={applicant.lotNo}
                         onChange={(e) => setApplicant(appl => ({
                             ...appl,
                             ...{ lotNo: e.target.value }
                         }))}
                         error={error.lotNo}
-                        inputProps={{ size: 14 }}
+                        inputProps={{ size: 14, 'data-lpignore': 'true' }}
                         type="text"
                     />
                 </Box>
@@ -348,7 +344,6 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         placeholder={titles(language, 'CA_REPAIRS')}
                         variant="filled"
                         multiline
-                        inputProps={{ 'data-lpignore': 'true' }}
                         value={applicant.repairs}
                         onChange={(e) => setApplicant(appl => ({
                             ...appl,
@@ -356,7 +351,7 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         }))}
                         error={error.repairs}
                         required
-                        inputProps={{ cols: 48 }}
+                        inputProps={{ cols: 48, 'data-lpignore': 'true' }}
                         type="text"
                     />
                 </Box>
@@ -369,7 +364,6 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         label={titles(language, 'CA_OTHERS')}
                         placeholder={titles(language, 'CA_OTHERS')}
                         variant="filled"
-                        inputProps={{ 'data-lpignore': 'true' }}
                         value={applicant.others}
                         onChange={(e) => setApplicant(appl => ({
                             ...appl,
@@ -377,7 +371,7 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         }))}
                         error={error}
                         required
-                        inputProps={{ size: 46 }}
+                        inputProps={{ size: 46, 'data-lpignore': 'true' }}
                         type="text"
                     />
                 </Box>

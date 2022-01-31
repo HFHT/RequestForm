@@ -29,12 +29,11 @@ export default function OthersGrid({ language, others = [], error = {}, matches,
                   placeholder={titles(language, 'OT_NAME')}
                   variant="filled"
                   size="small"
-                  inputProps={{ 'data-lpignore': 'true' }}
                   value={o.name}
                   onChange={(e) => setter({ key: i, prop: 'name', value: e.target.value })}
                   error={error.others}
                   required                  
-                  inputProps={{ size: 40 }}
+                  inputProps={{ size: 40, 'data-lpignore': 'true' }}
                   type="text"
                 />
               </TableCell>
@@ -44,11 +43,10 @@ export default function OthersGrid({ language, others = [], error = {}, matches,
                   placeholder={titles(language, 'OT_AGE')}
                   variant="filled"
                   size="small"                  
-                  inputProps={{ 'data-lpignore': 'true' }}
                   value={o.age}
                   onChange={(e) => setter({ key: i, prop: 'age', value: e.target.value })}
                   required                  
-                  inputProps={{ size: 10 }}
+                  inputProps={{ size: 10, 'data-lpignore': 'true' }}
                   type="text"
                 />
               </TableCell>
@@ -58,11 +56,10 @@ export default function OthersGrid({ language, others = [], error = {}, matches,
                   placeholder={titles(language, 'OT_RELATION')}
                   variant="filled"
                   size="small"                  
-                  inputProps={{ 'data-lpignore': 'true' }}
                   value={o.relation}
                   onChange={(e) => setter({ key: i, prop: 'relation', value: e.target.value })}
                   required                  
-                  inputProps={{ size: 10 }}
+                  inputProps={{ size: 10, 'data-lpignore': 'true' }}
                   type="text"
                 />
               </TableCell>

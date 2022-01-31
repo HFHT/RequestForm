@@ -5,38 +5,32 @@ import { Item } from './Item';
 import { titles } from '../services/Titles'
 
 export default function QuestionPanel({ thisQuestion, income, answers, language, matches, yesTranslate, handleAnswer }) {
-  const [rejectMsg, setRejectMsg] = useState(null)
-  console.log(thisQuestion)
 
   useEffect(() => {
     console.log(thisQuestion)
   }, [])
   return (
     <>
-      {!rejectMsg &&
-        <>
-          <Item elevation={0}><h3>{titles(language, 'QP_ANSWER')}</h3></Item>
-          <Stack direction="row" spacing={2} >
-            <Item elevation={0}>
-              <ToggleButtonGroup
-                orientation={matches ? "horizontal" : "vertical"}
-                color="primary"
-                exclusive
-                onChange={(e) => handleAnswer({ mode: 'shift', clientAns: e.target.value, ansKey: thisQuestion.attrib, reject: thisQuestion.reject, rejectMsg: thisQuestion.r, skip: thisQuestion.ck, proceed: thisQuestion.hasOwnProperty('proceed') })}
-              >
-                <ToggleButton value={"yes"}>{yesTranslate}</ToggleButton>
-                <ToggleButton value="no">no</ToggleButton>
-              </ToggleButtonGroup>
-            </Item>
-            <Item>
-              <h3>{thisQuestion.q[language]}</h3>
-            </Item>
-          </Stack>
-          <Incomex open={thisQuestion.attrib === "Income"} language={language} matches={matches} income={income.Values}
-            subHeader={income.IncomeDesc[language]}
-          />
-        </>
-      }
+      <Item elevation={0}><h3>{titles(language, 'QP_ANSWER')}</h3></Item>
+      <Stack direction="row" spacing={2} >
+        <Item elevation={0}>
+          <ToggleButtonGroup
+            orientation={matches ? "horizontal" : "vertical"}
+            color="primary"
+            exclusive
+            onChange={(e) => handleAnswer({ mode: 'shift', clientAns: e.target.value, ansKey: thisQuestion.attrib, reject: thisQuestion.reject, rejectMsg: thisQuestion.r, skip: thisQuestion.ck, proceed: thisQuestion.hasOwnProperty('proceed') })}
+          >
+            <ToggleButton value={"yes"}>{yesTranslate}</ToggleButton>
+            <ToggleButton value="no">no</ToggleButton>
+          </ToggleButtonGroup>
+        </Item>
+        <Item>
+          <h3>{thisQuestion.q[language]}</h3>
+        </Item>
+      </Stack>
+      <Incomex open={thisQuestion.attrib === "Income"} language={language} matches={matches} income={income.Values}
+        subHeader={income.IncomeDesc[language]}
+      />
     </>
   )
 }
