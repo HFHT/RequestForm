@@ -14,6 +14,7 @@ import { Item } from './ui-components/Item';
 import { titles } from './services/Titles'
 import { whichBrowser } from './services/WhichBrowser';
 import { parseCookie, getExpiration, saveCookie } from './services/HandleCookie';
+import { ConstructionOutlined } from '@mui/icons-material';
 
 const dbDate = () => {
   /* fix the following for time zone */
@@ -35,6 +36,7 @@ const updateAnswer = ({ ansKey, ansValue, setter }) => {
 }
 
 function App(props) {
+  console.log(props)
   const matches = useMediaQuery('(min-width:600px)')
   const [cookies, setCookies] = useState({
     "Expires": getExpiration(30),
@@ -192,7 +194,7 @@ function App(props) {
 
     //Check if a valid cookie has been previously set, if so restore the state to where they left off.
     let savedCookie = parseCookie(document.cookie)
-    if (savedCookie.hasOwnProperty('myState')) {
+    if (savedCookie.hasOwnProperty('myState') && !props.debug) {
       console.log('state coming from cookie', savedCookie.myState.state.thisQuestion)
       const Expires = savedCookie.myState.Expires
       setCookies(thisCookie => ({ ...thisCookie, Expires }))
