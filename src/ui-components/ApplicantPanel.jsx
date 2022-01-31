@@ -21,7 +21,7 @@ const validEmail = (emailAddr) => {
     let emailUser = emailAddr.substring(0, emailAddr.indexOf('@'))
     let emailDomain = emailAddr.substring(emailAddr.indexOf('@') + 1)
     let emailOrg = emailDomain.substring(emailDomain.indexOf('.') + 1)
-//    console.log(emailUser.length, emailDomain.length, emailOrg.length)
+    //    console.log(emailUser.length, emailDomain.length, emailOrg.length)
     return (emailUser.length === 0 || emailDomain.length === 0 || emailOrg.length === 0)
 }
 
@@ -61,28 +61,32 @@ export default function ApplicantPanel({ language, matches, setter }) {
     const [saveResult, setSaveResult] = useState(null)
 
     const handleSubmit = (e) => {
+        //First time through the error object will not have any keys, so don't submit.
+        formOk && Object.keys(error).length > 0 && MongoAPI({ method: 'insertOne', db: 'HomeRepairApp', collection: 'App', data: { applicant } }, setSaveResult, true)
+        //Handle the case where a user tries to submit the form when it first appears.
         checkForm()
-        MongoAPI({ method: 'insertOne', db: 'HomeRepairApp', collection: 'App', data: { 'a3': 3 } }, setSaveResult, true)
     };
+
     const handleOther = ({ key, prop, value, addNew = false }) => {
         console.log(key, prop, value, validKeys.includes(value.slice(-1)))
         if (prop === 'age' && !validKeys.includes(value.slice(-1))) { return }
         if (prop === 'age' && value.length > 3) { return }
         // Grab the object
         let thisOthers = applicant.others
+        console.log(thisOthers)
         // Update the value of the property
         thisOthers[key][prop] = value
+        console.log(thisOthers)
         // Add a new row if the last array element name and either age or relation is not blank
         const lastOthers = thisOthers[thisOthers.length - 1]
         lastOthers.name !== '' && (lastOthers.age !== '' || lastOthers.relation !== '') && thisOthers.push({ name: '', age: '', relation: '' })
         // Update state
         setApplicant(appl => ({
             ...appl,
-            ...thisOthers
+            ...{others: thisOthers}
         }))
     };
     const handlePhone = (phoneKey, phoneValue) => {
-        //        console.log(phoneValue, phoneValue.length, phoneValue.slice(-1), phoneKey, validKeys.includes(phoneValue.slice(-1)))
         if (phoneValue && !validKeys.includes(phoneValue.slice(-1))) { return }
         if (phoneValue.slice(-1) === '(' && phoneValue.length !== 1) { return }
         if (phoneValue.slice(-1) === ')' && phoneValue.length !== 5) { return }
@@ -131,15 +135,21 @@ export default function ApplicantPanel({ language, matches, setter }) {
     }
 
     useEffect(() => {
+        //!!!! Need to add a case for when the database returns a bad reply. Currently any reply is okay :-(
         saveResult && saveResult.hasOwnProperty('acknowledged') &&
             console.log(saveResult)
+        if (saveResult && saveResult.hasOwnProperty('acknowledged') && formOk) {
+            setter(applicant)
+        }
     }, [saveResult])
 
     useEffect(() => {
+        //Continually check the form as the user inputs the data
         checkForm()
     }, [applicant])
 
     useEffect(() => {
+        //Any time the error object changes, set formOk to true when every property is false (no errors)
         error && setFormOk(Object.values(error).every(item => item === false))
     }, [error])
 
@@ -324,7 +334,7 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         value={applicant.lotNo}
                         onChange={(e) => setApplicant(appl => ({
                             ...appl,
-                            ...{ email: e.target.value }
+                            ...{ lotNo: e.target.value }
                         }))}
                         error={error.lotNo}
                         inputProps={{ size: 14 }}

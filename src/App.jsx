@@ -9,8 +9,11 @@ import QuestionPanel from './ui-components/QuestionPanel';
 import RepairListPanel from './ui-components/RepairListPanel';
 import ResultPanel from './ui-components/ResultPanel';
 import ApplicantPanel from './ui-components/ApplicantPanel';
+import Submitted from './ui-components/Submitted';
 import { Item } from './ui-components/Item';
 import { titles } from './services/Titles'
+import { whichBrowser } from './services/WhichBrowser';
+import { parseCookie, getExpiration, saveCookie } from './services/HandleCookie';
 
 const dbDate = () => {
   /* fix the following for time zone */
@@ -33,11 +36,29 @@ const updateAnswer = ({ ansKey, ansValue, setter }) => {
 
 function App(props) {
   const matches = useMediaQuery('(min-width:600px)')
+  const [cookies, setCookies] = useState({
+    "Expires": getExpiration(30),
+    "appID": "",
+    "answers": {},
+    "applicant": {},
+    "addressInfo": {},
+    "selectedRepairs": "",
+    "state": {
+      "thisQuestion": "",
+      "proceed": false,
+      "lastQuestion": false,
+      "questionsDone": false,
+      "filloutApp": false,
+      "applicantDone": false
+    }
+  })
+  const [awaitStateRestore, setAwaitStateRestore] = useState(false)
+  const [awaitRelease, setAwaitRelease] = useState(false)
   const [hasAlert, setHasAlert] = useState(null)
   const [instructions, setInstructions] = useState(null)
   const [questions, setQuestions] = useState([])
   const [programList, setProgramList] = useState([])
-  const [programs, setPrograms] = useState([])
+  const [programs, setPrograms] = useState({})
   const [thisQuestion, setThisQuestion] = useState(null)
   const [income, setIncome] = useState(null)
   const [answers, setAnswers] = useState({})
@@ -51,16 +72,9 @@ function App(props) {
   const [selectedRepairs, setSelectedRepairs] = useState('')
   const [lastQuestion, setLastQuestion] = useState(false)
   const [questionsDone, setQuestionsDone] = useState(false)
-  const [filloutApp,setFilloutApp] = useState(false)  
-  const [contactName, setContactName] = useState('')
-  const [contactPhone, setContactPhone] = useState('')
-  const [contactEmail, setContactEmail] = useState('')
-
-  const [contactErrors, setContactErrors] = useState({
-    name: false,
-    phone: false,
-    email: false
-  })
+  const [filloutApp, setFilloutApp] = useState(false)
+  const [applicant, setApplicant] = useState({})
+  const [applicantDone, setApplicantDone] = useState(false)
 
   // Handle changes to the desired language
   const handleChange = (event, language) => {
@@ -80,10 +94,6 @@ function App(props) {
   const handleProceed = (event) => {
     console.log(event)
     setRejectMsg(null)
-  }
-
-  const handleMailError = ({ e }) => {
-    console.log(e)
   }
 
   // Based on the address information filter the questions to remove/keep county and/or city questions.
@@ -135,7 +145,7 @@ function App(props) {
     }
   }
 
-  var applicant = {
+  var applicantPrototype = {
     "_id": 0,
     "Version": 0,
     "Date": dbDate(),
@@ -144,9 +154,14 @@ function App(props) {
     ]
   }
 
-  //console.log(applicant)
+  //The following three useEffect prepare the environment
+  // 1) fetch all the initial data from the database
+  // 2) upon completion:
+  //    a) Set the fetched data into their respective state variables
+  //    b) Check if the client has a cookie set, if so then restore the program stat from the cookie
+  // 3) Once cookie data is restored, release the UI
 
-  // Upon page load fetch all the required information from the Mongo database
+  // 1 - Upon page load fetch all the required information from the Mongo database
   useEffect(() => {
     const getInstructions = async () => {
       await MongoAPI({ method: 'max', db: 'HomeRepairApp', collection: 'Questions', find: "Version", limit: 1 }, setInstructions)
@@ -154,13 +169,12 @@ function App(props) {
       await MongoAPI({ method: 'find', db: 'HomeRepairApp', collection: 'Programs', find: { "_id": 0 } }, setPrograms)
     }
     getInstructions()
+    //!!!!! Fire off another request to add a tracking record, do this via a new Azure function 
+    //which uses node.js agent.getNames() to append IP information
+
   }, [])
 
-  useEffect(() => {
-    console.log(rejectMsg)
-  }, [rejectMsg])
-
-  // When the fetch from the database completes set all the needed state variables with it's contents
+  // 2- When the fetch from the database completes set all the needed state variables with it's contents
   useEffect(() => {
     console.log(instructions)
     instructions && instructions.hasOwnProperty('Questions') &&
@@ -175,9 +189,64 @@ function App(props) {
       setAnswers(instructions.Answers)
     instructions && instructions.hasOwnProperty('Programs') &&
       setProgramList(instructions.Programs)
+
+    //Check if a valid cookie has been previously set, if so restore the state to where they left off.
+    let savedCookie = parseCookie(document.cookie)
+    if (savedCookie.hasOwnProperty('myState')) {
+      console.log('state coming from cookie', savedCookie.myState.state.thisQuestion)
+      const Expires = savedCookie.myState.Expires
+      setCookies(thisCookie => ({ ...thisCookie, Expires }))
+      setAnswers(savedCookie.myState.answers)
+      setAddressInfo(savedCookie.myState.addressInfo)
+      setApplicant(savedCookie.myState.applicant)
+      setThisQuestion(savedCookie.myState.state.thisQuestion)
+      setLastQuestion(savedCookie.myState.state.lastQuestion)
+      setSelectedRepairs(savedCookie.myState.selectedRepairs)
+      setProceed(savedCookie.myState.state.proceed)
+      setQuestionsDone(savedCookie.myState.state.questionsDone)
+      setFilloutApp(savedCookie.myState.state.filloutApp)
+      setApplicantDone(savedCookie.myState.state.applicantDone)
+      setAwaitStateRestore(true)
+    } else {
+      setAwaitStateRestore(true)
+    }
+    console.log(parseCookie(document.cookie))
+    console.log(whichBrowser())
+      
   }, [instructions])
 
-  // When an item is added or removed from the questions array, set the current question, also test for if it is the last question
+    // 3 - Once all the cookie states have been restored, release the display of the UI
+    useEffect(() => {
+      setAwaitRelease(true)
+    }, [awaitStateRestore])
+
+  // Saving the current state to a cookie  
+  // When the cookie object is updated, save the cookie
+  useEffect(() => {
+    console.log('cookies', cookies)
+    cookies && saveCookie({ name: 'myState', value: cookies })
+  }, [cookies])
+
+  // The folowing useEffects are for capturing the clients input
+  // 1) The address
+  // 2) The answers
+  // 3) The questions (they will change as a result of answers provided)
+  // 4) The selected repairs
+  // 5) The applicant contact information
+
+  // 1- When the client has provided the address update the cookie
+  useEffect(() => {
+    console.log('addressinfo', addressInfo)
+    addressInfo && addressInfo.hasOwnProperty('address_components') && setCookies(thisCookie => ({ ...thisCookie, addressInfo }))
+  }, [addressInfo])
+
+  // 2- When the client has provided an answer to a question update the cookie
+  useEffect(() => {
+    console.log('answers', answers, Object.keys(answers))
+    answers && Object.keys(answers).length > 0 && setCookies(thisCookie => ({ ...thisCookie, answers }))
+  }, [answers])
+
+  // 3- When an item is added or removed from the questions array, set the current question, also test for if it is the last question
   useEffect(() => {
     console.log('question state', questions)
     lastQuestion && setQuestionsDone(true)
@@ -186,16 +255,45 @@ function App(props) {
     setThisQuestion(questions[0])
   }, [questions])
 
-  // When the client has finished specifying the repairs, update the progress state
+  // 4- When the client has finished specifying the repairs, update the progress state and cookie
   useEffect(() => {
     console.log('repairList state', selectedRepairs)
     selectedRepairs !== '' &&
       handleAnswer({ mode: null, ansKey: "Repairs", clientAns: "yes", reject: [], rejectMsg: null, skip: {} })
+    selectedRepairs !== '' && setCookies(thisCookie => ({ ...thisCookie, selectedRepairs }))
   }, [selectedRepairs])
+
+  // 5- When the client has finished fillout out form, set done
+  useEffect(() => {
+    console.log('applicant', applicant)
+    applicant && applicant.hasOwnProperty('name') && setApplicantDone(true)
+    applicant && applicant.hasOwnProperty('name') && setCookies(thisCookie => ({ ...thisCookie, applicant }))
+  }, [applicant])
+
+  // In order to restore state from the cookie, need to capture all major state changes
+  // When any major state changes occur update the cookie
+  useEffect(() => {
+    console.log('major state', awaitStateRestore)
+    if (!awaitStateRestore) return
+    let state = {
+      thisQuestion: thisQuestion,
+      proceed: proceed,
+      lastQuestion: lastQuestion,
+      questionsDone: questionsDone,
+      filloutApp: filloutApp,
+      applicantDone: applicantDone
+    }
+    addressInfo && addressInfo.hasOwnProperty('address_components') && setCookies(thisCookie => ({ ...thisCookie, state }))
+  }, [thisQuestion, proceed, lastQuestion, questionsDone, filloutApp, applicantDone])
+
+  // Place holder for doing something when someone doesn't qualify
+  useEffect(() => {
+    console.log(rejectMsg)
+  }, [rejectMsg])
 
   return (
     <div>
-      {(instructions && instructions.hasOwnProperty('Questions') && !zipCodes) ? <CircularProgress /> :
+      {((instructions && (!instructions.hasOwnProperty('Questions') || !instructions.hasOwnProperty('Programs'))) || !zipCodes || !awaitRelease) ? <CircularProgress /> :
         <div>
           <SelLanguage language={language} onChange={handleChange} matches={matches} />
           <ProgressPanel language={language} yesTranslate={yesTranslate} answers={answers} setAnswers={setAnswers} />
@@ -206,8 +304,7 @@ function App(props) {
             setAddressInfo={setAddressInfo}
             handleAnswer={handleAnswer}
             handleAddress={handleAddress} />
-
-          {addressInfo && addressInfo.hasOwnProperty('address_components') && questions.length > 0 && !rejectMsg &&
+          {addressInfo && addressInfo.hasOwnProperty('address_components') && !questionsDone && !rejectMsg &&
             <QuestionPanel
               language={language}
               questions={questions}
@@ -217,9 +314,9 @@ function App(props) {
               handleAnswer={handleAnswer}
               yesTranslate={yesTranslate} />}
           {questionsDone && selectedRepairs === "" && <RepairListPanel repairs={repairs} setRepairs={setRepairs} language={language} setSelectedRepairs={setSelectedRepairs} matches={matches} />}
-          {questionsDone && selectedRepairs !== "" && !filloutApp && <ResultPanel language={language} programList={programList} programs={programs} answers={answers} selectedRepairs={selectedRepairs} setter={setFilloutApp} matches={matches} />}
-          {questionsDone && filloutApp && <ApplicantPanel language={language} programList={programList} programs={programs} answers={answers} selectedRepairs={selectedRepairs} />}
-
+          {questionsDone && selectedRepairs && selectedRepairs !== "" && !filloutApp && <ResultPanel language={language} programList={programList} programs={programs} answers={answers} selectedRepairs={selectedRepairs} setter={setFilloutApp} matches={matches} />}
+          {questionsDone && filloutApp && !applicantDone && <ApplicantPanel language={language} programList={programList} programs={programs} answers={answers} selectedRepairs={selectedRepairs} setter={setApplicant} />}
+          {questionsDone && applicantDone && <Submitted />}
           <Dialog
             open={rejectMsg !== null}
             onClose={handleClose}
@@ -266,6 +363,5 @@ const SelLanguage = ({ language, onChange, matches }) => {
         <h3>Select language / Seleccione el idioma</h3>
       </Item>
     </Stack>
-
   )
 }

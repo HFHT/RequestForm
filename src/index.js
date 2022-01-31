@@ -8,7 +8,6 @@ let allCookies = document.cookie
 var language = window.navigator.language
 var languages = window.navigator.languages
 console.log(allCookies, language, languages)
-document.cookie = 'HFHT'
 document.documentElement.lang = 'es-MX'
 console.log(document.documentElement.lang)
 ReactDOM.render(

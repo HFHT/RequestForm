@@ -30,6 +30,7 @@ export default function ResultPanel({ language, programList, programs, answers, 
 
     // Determine which repair programs the applicant is eligible for
     useEffect(() => {
+        console.log(selectedRepairs)
         let filterPrograms = programList.filter((p) => {
             console.log(p)
             if (p.Active) {
@@ -46,12 +47,13 @@ export default function ResultPanel({ language, programList, programs, answers, 
                 return false
             }
         })
+        console.log(filterPrograms)
         setMatchPrograms(filterPrograms)
     }, [])
 
     return (
         <>
-            {matchPrograms &&
+            {matchPrograms && programs && programs.hasOwnProperty('Programs') &&
                 <>
                     {(matchPrograms.length < 1) ? <NotQualified /> :
                         <>
