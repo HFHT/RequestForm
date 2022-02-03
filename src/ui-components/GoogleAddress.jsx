@@ -12,7 +12,7 @@ export default function GoogleAddress({ language, zipCodes, addressInfo, setAddr
     // When Google autocomplete is done, addressInfo will be updated
     // Update the answers using handleAnswer, trim the list of questions using handleAddress
     useEffect(() => {
-        if (Object.keys(addressInfo).length === 0) { return }
+        if (addressInfo && Object.keys(addressInfo).length === 0) { return }
         handleAnswer({ mode: null, ansKey: "City", clientAns: isCity(addressInfo, zipCodes), reject: [], rejectMsg: null, skip: {}, proceed: false })
         handleAnswer({ mode: null, ansKey: "County", clientAns: isCounty(addressInfo), reject: [], rejectMsg: null, skip: {}, proceed: false })
         handleAddress({ county: isCounty(addressInfo), city: isCity(addressInfo, zipCodes) })

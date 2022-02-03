@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button, CircularProgress, ToggleButton, ToggleButtonGroup, Stack, useMediaQuery } from '@mui/material'
 
 import './App.css';
-import { MongoAPI } from './services/MongoDBAPI'
+import { MongoSetterAPI } from './services/MongoDBAPI'
 import GoogleAddress from './ui-components/GoogleAddress';
 import ProgressPanel from './ui-components/ProgressPanel';
 import QuestionPanel from './ui-components/QuestionPanel';
@@ -26,46 +26,50 @@ const updateAnswer = ({ ansKey, ansValue, setter }) => {
   }))
 }
 
+let emptyCookie = {
+  "Expires": getExpiration(30),
+  "appID": "",
+  "answers": {},
+  "applicant": {},
+  "addressInfo": {},
+  "selectedRepairs": "",
+  "state": {
+    "thisQuestion": "",
+    "proceed": false,
+    "lastQuestion": false,
+    "questionsDone": false,
+    "filloutApp": false,
+    "applicantDone": false
+  }
+}
+
 function App(props) {
+  console.debug(props)
+
   const matches = useMediaQuery('(min-width:600px)')
-  const [cookies, setCookies] = useState({
-    "Expires": getExpiration(30),
-    "appID": "",
-    "answers": {},
-    "applicant": {},
-    "addressInfo": {},
-    "selectedRepairs": "",
-    "state": {
-      "thisQuestion": "",
-      "proceed": false,
-      "lastQuestion": false,
-      "questionsDone": false,
-      "filloutApp": false,
-      "applicantDone": false
-    }
-  })
+  const [cookies, setCookies] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState : emptyCookie)
   const [awaitStateRestore, setAwaitStateRestore] = useState(false)
   const [awaitRelease, setAwaitRelease] = useState(false)
-  const [instructions, setInstructions] = useState(null)
-  const [questions, setQuestions] = useState([])
-  const [programList, setProgramList] = useState([])
-  const [programs, setPrograms] = useState({})
-  const [thisQuestion, setThisQuestion] = useState(null)
-  const [income, setIncome] = useState(null)
-  const [answers, setAnswers] = useState({})
-  const [repairs, setRepairs] = useState([])
-  const [zipCodes, setZipCodes] = useState(null)
+  const [instructions, setInstructions] = useState(props.instructions)
+  const [questions, setQuestions] = useState(props.instructions.Questions)
+  const [programList, setProgramList] = useState(props.instructions.ProgramList)
+  const [programs, setPrograms] = useState(props.instructions.Programs)
+  const [thisQuestion, setThisQuestion] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.state.thisQuestion : null)
+  const [income, setIncome] = useState(props.instructions.Income)
+  const [answers, setAnswers] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.answers : props.instructions.Answers)
+  const [repairs, setRepairs] = useState(props.instructions.RepairList)
+  const [zipCodes, setZipCodes] = useState(props.instructions.ZipCodes)
   const [language, setLanguage] = useState(props.language)
   const [yesTranslate, setYesTranslate] = useState(language === 'en' ? "yes" : "sí")
   const [rejectMsg, setRejectMsg] = useState(null)
-  const [proceed, setProceed] = useState(false)
-  const [addressInfo, setAddressInfo] = useState({})
-  const [selectedRepairs, setSelectedRepairs] = useState('')
-  const [lastQuestion, setLastQuestion] = useState(false)
-  const [questionsDone, setQuestionsDone] = useState(false)
-  const [filloutApp, setFilloutApp] = useState(false)  /* tri state false - initial, yes - proceed, no - abort */
-  const [applicant, setApplicant] = useState({})
-  const [applicantDone, setApplicantDone] = useState(false)
+  const [proceed, setProceed] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.state.proceed : false)
+  const [addressInfo, setAddressInfo] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.addressInfo : {})
+  const [selectedRepairs, setSelectedRepairs] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.selectedRepairs : '')
+  const [lastQuestion, setLastQuestion] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.state.lastQuestion : false)
+  const [questionsDone, setQuestionsDone] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.state.questionsDone : false)
+  const [filloutApp, setFilloutApp] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.state.filloutApp : false)  /* tri state false - initial, yes - proceed, no - abort */
+  const [applicant, setApplicant] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.applicant : {})
+  const [applicantDone, setApplicantDone] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.state.applicantDone : false)
 
   // Handle changes to the desired language
   const handleChange = (event, language) => {
@@ -127,68 +131,7 @@ function App(props) {
       setQuestions(curQuestions)
     }
   }
-
-  //The following three useEffect prepare the environment
-  // 1) fetch all the initial data from the database
-  // 2) upon completion:
-  //    a) Set the fetched data into their respective state variables
-  //    b) Check if the client has a cookie set, if so then restore the program stat from the cookie
-  // 3) Once cookie data is restored, release the UI
-
-  // 1 - Upon page load fetch all the required information from the Mongo database
-  useEffect(() => {
-    const getInstructions = async () => {
-      await MongoAPI({ method: 'max', db: 'HomeRepairApp', collection: 'Questions', find: "Version", limit: 1 }, setInstructions)
-      await MongoAPI({ method: 'find', db: 'HomeRepairApp', collection: 'ZipCodes', find: { "_id": 0 } }, setZipCodes)
-      await MongoAPI({ method: 'find', db: 'HomeRepairApp', collection: 'Programs', find: { "_id": 0 } }, setPrograms)
-    }
-    getInstructions()
-    //!!!!! Fire off another request to add a tracking record, do this via a new Azure function 
-    //which uses node.js agent.getNames() to append IP information
-
-  }, [])
-
-  // 2- When the fetch from the database completes set all the needed state variables with it's contents
-  useEffect(() => {
-    instructions && instructions.hasOwnProperty('Questions') &&
-      setQuestions(instructions.Questions)
-    instructions && instructions.hasOwnProperty('Questions') &&
-      setThisQuestion(instructions.Questions[0])
-    instructions && instructions.hasOwnProperty('Income') &&
-      setIncome(instructions.Income)
-    instructions && instructions.hasOwnProperty('RepairList') &&
-      setRepairs(instructions.RepairList)
-    instructions && instructions.hasOwnProperty('Answers') &&
-      setAnswers(instructions.Answers)
-    instructions && instructions.hasOwnProperty('Programs') &&
-      setProgramList(instructions.Programs)
-
-    //Check if a valid cookie has been previously set, if so restore the state to where they left off.
-    let savedCookie = parseCookie(document.cookie)
-    if (savedCookie.hasOwnProperty('myState') && !props.debug) {
-      console.log('state coming from cookie', savedCookie.myState.state.thisQuestion)
-      const Expires = savedCookie.myState.Expires
-      setCookies(thisCookie => ({ ...thisCookie, Expires }))
-      setAnswers(savedCookie.myState.answers)
-      setAddressInfo(savedCookie.myState.addressInfo)
-      setApplicant(savedCookie.myState.applicant)
-      setThisQuestion(savedCookie.myState.state.thisQuestion)
-      setLastQuestion(savedCookie.myState.state.lastQuestion)
-      setSelectedRepairs(savedCookie.myState.selectedRepairs)
-      setProceed(savedCookie.myState.state.proceed)
-      setQuestionsDone(savedCookie.myState.state.questionsDone)
-      setFilloutApp(savedCookie.myState.state.filloutApp)
-      setApplicantDone(savedCookie.myState.state.applicantDone)
-      setAwaitStateRestore(true)
-    } else {
-      setAwaitStateRestore(true)
-    }
-    console.log(parseCookie(document.cookie))
-    console.log(whichBrowser())
-
-  }, [instructions])
-
-  // 3 - Once all the cookie states have been restored, release the display of the UI
+   
   useEffect(() => {
     setAwaitRelease(true)
   }, [awaitStateRestore])
@@ -242,7 +185,7 @@ function App(props) {
   // When any major state changes occur update the cookie
   useEffect(() => {
     console.log('major state', awaitStateRestore)
-    if (!awaitStateRestore) return
+//    if (!awaitStateRestore) return
     let state = {
       thisQuestion: thisQuestion,
       proceed: proceed,
@@ -261,7 +204,7 @@ function App(props) {
 
   return (
     <div>
-      {((instructions && (!instructions.hasOwnProperty('Questions') || !instructions.hasOwnProperty('Programs'))) || !zipCodes || !awaitRelease) ? <CircularProgress /> :
+      {((instructions && (!instructions.hasOwnProperty('Questions') || !instructions.hasOwnProperty('Programs'))) || !zipCodes ) ? <CircularProgress /> :
         <div>
           <SelLanguage language={language} onChange={handleChange} matches={matches} />
           <ProgressPanel language={language} yesTranslate={yesTranslate} answers={answers} setAnswers={setAnswers} />

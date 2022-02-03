@@ -2,19 +2,31 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
+import { parseCookie } from './services/HandleCookie'
+import { MongoAPI } from './services/MongoDBAPI'
+
 require('dotenv').config()
 var language = window.navigator.language
-var params = new URLSearchParams(window.location.search)
 //the debug param stops the loading of state from the cookie, so you can start the questions again.
-ReactDOM.render(
-  <React.StrictMode>
-    <App language={language.substring(0,2)} debug={params.get('debug')}/>
-  </React.StrictMode>,
-  document.getElementById('root')
-);
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+var params = new URLSearchParams(window.location.search)
+//fetch the program variables from the MongoDB and pass as parms to React
+let response = {}
+async function getInstructions() {
+  response.Questions = await MongoAPI({ method: 'max', db: 'HomeRepairApp', collection: 'Questions', find: "Version", limit: 1 })
+  response.ZipCodes = await MongoAPI({ method: 'find', db: 'HomeRepairApp', collection: 'ZipCodes', find: { "_id": 0 } })
+  response.Programs = await MongoAPI({ method: 'find', db: 'HomeRepairApp', collection: 'Programs', find: { "_id": 0 } })
+  return response
+}
+(async () => {
+  try {
+  const results = await getInstructions().then(data => data)
+  const instructions = {Programs: results.Programs.Programs, ProgramList: results.Questions.Programs, Income: results.Questions.Income, RepairList: results.Questions.RepairList, Answers: results.Questions.Answers, Questions: results.Questions.Questions, ZipCodes: results.ZipCodes.ZipCodes}
+  ReactDOM.render(
+    <React.StrictMode>
+      {<App language={language.substring(0, 2)} debug={params.get('debug')} instructions={instructions} cookie={params.get('debug') ? '' : parseCookie(document.cookie)} />}
+    </React.StrictMode>,
+    document.getElementById('root')
+  );
+  }
+  catch(e) {console.log(e)}
+})()

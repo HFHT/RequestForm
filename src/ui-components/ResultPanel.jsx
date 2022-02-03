@@ -17,13 +17,14 @@ const checker = (selected, allowed) => selected.every(s => {
 });
 
 export default function ResultPanel({ language, programList, programs, answers, selectedRepairs, matches, setter }) {
+    console.log(programList, programs, answers, selectedRepairs)
     const [matchPrograms, setMatchPrograms] = useState(null)
     const [alignment, setAlignment] = useState('yes')
     const handleChange = ((e, newAlignment) => {
         console.log(newAlignment)
         let thisAlignment = newAlignment
         // MUI toggle group, when an item is deselcted it sends a null
-        if (!newAlignment) { thisAlignment = 'yes'}
+        if (!newAlignment) { thisAlignment = 'yes' }
         setAlignment(thisAlignment)
         setter(thisAlignment)
     })
@@ -49,7 +50,7 @@ export default function ResultPanel({ language, programList, programs, answers, 
 
     return (
         <>
-            {matchPrograms && programs && programs.hasOwnProperty('Programs') &&
+            {matchPrograms && programs && Object.keys(programs).length > 0 &&
                 <>
                     {(matchPrograms.length < 1) ? <NotQualified /> :
                         <>
@@ -71,7 +72,7 @@ export default function ResultPanel({ language, programList, programs, answers, 
                                             >
                                                 {p.Funding && <TableCell>{p.r[language]}</TableCell>}
                                                 {!p.Funding && <TableCell>{p.r[language]}<br /><b><i>{p.f[language]}</i></b></TableCell>}
-                                                <TableCell align="right">{programs.Programs[p.Program]}</TableCell>
+                                                <TableCell align="right">{programs[p.Program]}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>

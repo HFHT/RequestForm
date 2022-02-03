@@ -3,7 +3,7 @@ import { Button, FormControl, FormHelperText, InputLabel, MenuItem, Select, Text
 import { Send as SendIcon } from '@mui/icons-material';
 import { Box } from '@mui/system';
 import { titles } from '../services/Titles'
-import { MongoAPI } from '../services/MongoDBAPI'
+import { MongoSetterAPI } from '../services/MongoDBAPI'
 import OthersGrid from './OthersGrid';
 
 // Helper function to check and set the error state for empty required fields
@@ -62,7 +62,7 @@ export default function ApplicantPanel({ language, matches, setter }) {
 
     const handleSubmit = (e) => {
         //First time through the error object will not have any keys, so don't submit.
-        formOk && Object.keys(error).length > 0 && MongoAPI({ method: 'insertOne', db: 'HomeRepairApp', collection: 'App', data: { applicant } }, setSaveResult, true)
+        formOk && Object.keys(error).length > 0 && MongoSetterAPI({ method: 'insertOne', db: 'HomeRepairApp', collection: 'App', data: { applicant } }, setSaveResult, true)
         //Handle the case where a user tries to submit the form when it first appears.
         checkForm()
     };
