@@ -6,6 +6,7 @@ const isYes = (ans) => {
 }
 
 export default function ProgressPanel({ answers, yesTranslate, setAnswers, language }) {
+    console.log(answers)
     return (
         <div style={{ marginLeft: "4px" }}>
             <Grid container direction="row" spacing="4"
@@ -26,29 +27,29 @@ export default function ProgressPanel({ answers, yesTranslate, setAnswers, langu
                         <Chip variant="outlined" color="success" label={language === 'en' ? 'Not Emergency' : 'No emergencia'} size="small" icon={<CheckIcon />} />
                     </Grid>
                 }
-                {isYes(answers.OwnHome) &&
+                {answers.OwnHome &&
                     <Grid item >
-                        <Chip variant="outlined" color="success" label={language === 'en' ? 'Home Owner' : 'Propietario de casa'} size="small" icon={<CheckIcon />} />
+                        <Chip variant="outlined" color={isYes(answers.OwnHome) ? "success" : "error"} label={language === 'en' ? 'Home Owner' : 'Propietario de casa'} size="small" icon={isYes(answers.OwnHome) ? <CheckIcon /> : <CancelIcon />} />
                     </Grid>
                 }
-                {isYes(answers.MfgHome) &&
+                {answers.MfgHome &&
                     <Grid item >
                         <Chip variant="outlined" color="success" label={language === 'en' ? 'Mfg Home' : 'Casa Fabricada'} size="small" icon={<CheckIcon />} />
                     </Grid>
-                }                
-                {isYes(answers.haveIns) &&
+                }
+                {answers.OwnLot === 'no' &&
                     <Grid item >
-                        <Chip variant="outlined" color="success" label={language === 'en' ? 'Insurance' : 'Seguro'} size="small" icon={<CheckIcon />} />
-                    </Grid>
-                }                
-                {isYes(answers.Income) &&
-                    <Grid item >
-                        <Chip variant="outlined" color="success" label={language === 'en' ? 'Income' : 'Ingreso'} size="small" icon={<CheckIcon />} />
+                        <Chip variant="outlined" color="error" label={language === 'en' ? 'Own the Property' : 'Sea dueño de la propiedad'} size="small" icon={<CancelIcon />} />
                     </Grid>
                 }
-                {isYes(answers.HomeIns) &&
+                {answers.haveIns &&
                     <Grid item >
-                        <Chip variant="outlined" color="success" label={language === 'en' ? 'Insured' : 'Asegurado'} size="small" icon={<CheckIcon />} />
+                        <Chip variant="outlined" color={isYes(answers.haveIns) ? "success" : "error"} label={language === 'en' ? 'Insurance' : 'Seguro'} size="small" icon={isYes(answers.haveIns) ? <CheckIcon /> : <CancelIcon />} />
+                    </Grid>
+                }
+                {answers.Income &&
+                    <Grid item >
+                        <Chip variant="outlined" color={isYes(answers.Income) ? "success" : "error"} label={language === 'en' ? 'Income' : 'Ingreso'} size="small" icon={isYes(answers.Income) ? <CheckIcon /> : <CancelIcon />} />
                     </Grid>
                 }
                 {answers.Vet &&
@@ -65,7 +66,7 @@ export default function ProgressPanel({ answers, yesTranslate, setAnswers, langu
                     <Grid item >
                         <Chip variant="outlined" color="success" label={language === 'en' ? 'Repairs' : 'Refacción'} size="small" icon={<CheckIcon />} />
                     </Grid>
-                }                
+                }
                 <Grid item >
                     &nbsp;
                 </Grid>

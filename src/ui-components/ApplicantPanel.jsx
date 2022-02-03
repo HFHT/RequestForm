@@ -60,9 +60,9 @@ export default function ApplicantPanel({ language, matches, setter }) {
     const [error, setError] = useState({})
     const [saveResult, setSaveResult] = useState(null)
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e) => {     
         //First time through the error object will not have any keys, so don't submit.
-        formOk && Object.keys(error).length > 0 && MongoSetterAPI({ method: 'insertOne', db: 'HomeRepairApp', collection: 'App', data: { applicant } }, setSaveResult, true)
+        formOk && Object.keys(error).length > 0 && setter(applicant)
         //Handle the case where a user tries to submit the form when it first appears.
         checkForm()
     };

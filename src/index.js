@@ -7,6 +7,7 @@ import { MongoAPI } from './services/MongoDBAPI'
 
 require('dotenv').config()
 var language = window.navigator.language
+const date = new Date()
 //the debug param stops the loading of state from the cookie, so you can start the questions again.
 var params = new URLSearchParams(window.location.search)
 //fetch the program variables from the MongoDB and pass as parms to React
@@ -19,14 +20,21 @@ async function getInstructions() {
 }
 (async () => {
   try {
-  const results = await getInstructions().then(data => data)
-  const instructions = {Programs: results.Programs.Programs, ProgramList: results.Questions.Programs, Income: results.Questions.Income, RepairList: results.Questions.RepairList, Answers: results.Questions.Answers, Questions: results.Questions.Questions, ZipCodes: results.ZipCodes.ZipCodes}
-  ReactDOM.render(
-    <React.StrictMode>
-      {<App language={language.substring(0, 2)} debug={params.get('debug')} instructions={instructions} cookie={params.get('debug') ? '' : parseCookie(document.cookie)} />}
-    </React.StrictMode>,
-    document.getElementById('root')
-  );
+    const results = await getInstructions().then(data => data)
+    const instructions = { Programs: results.Programs.Programs, ProgramList: results.Questions.Programs, Income: results.Questions.Income, RepairList: results.Questions.RepairList, Answers: results.Questions.Answers, Questions: results.Questions.Questions, ZipCodes: results.ZipCodes.ZipCodes }
+    ReactDOM.render(
+      <React.StrictMode>
+        {<App language={language.substring(0, 2)} date={date.toISOString()} appID={(Date.now()/10).toFixed()} debug={params.get('debug')} instructions={instructions} cookie={params.get('debug') ? '' : parseCookie(document.cookie)} />}
+      </React.StrictMode>,
+      document.getElementById('root')
+    );
   }
-  catch(e) {console.log(e)}
+  catch (e) {
+    ReactDOM.render(
+      <React.StrictMode>
+        {<h3>&nbsp;Trouble connecting to the Home Repair service. You may be experiencing problems with your internet connection. Please try again later.</h3>}
+      </React.StrictMode>,
+      document.getElementById('root')
+    );
+  }
 })()

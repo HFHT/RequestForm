@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button, CircularProgress, ToggleButton, ToggleButtonGroup, Stack, useMediaQuery } from '@mui/material'
 
 import './App.css';
-import { MongoSetterAPI } from './services/MongoDBAPI'
 import GoogleAddress from './ui-components/GoogleAddress';
 import ProgressPanel from './ui-components/ProgressPanel';
 import QuestionPanel from './ui-components/QuestionPanel';
@@ -13,7 +12,8 @@ import Submitted from './ui-components/Submitted';
 import { Item } from './ui-components/Item';
 import { titles } from './services/Titles'
 import { whichBrowser } from './services/WhichBrowser';
-import { parseCookie, getExpiration, saveCookie } from './services/HandleCookie';
+import { getExpiration, saveCookie } from './services/HandleCookie';
+import { MongoAPI } from './services/MongoDBAPI'
 
 // Helper function to update the answers state 
 const updateAnswer = ({ ansKey, ansValue, setter }) => {
@@ -26,32 +26,44 @@ const updateAnswer = ({ ansKey, ansValue, setter }) => {
   }))
 }
 
-let emptyCookie = {
-  "Expires": getExpiration(30),
-  "appID": "",
-  "answers": {},
-  "applicant": {},
-  "addressInfo": {},
-  "selectedRepairs": "",
-  "state": {
-    "thisQuestion": "",
-    "proceed": false,
-    "lastQuestion": false,
-    "questionsDone": false,
-    "filloutApp": false,
-    "applicantDone": false
-  }
+const trimAlreadyAnswered = (lastIdx, questions) => {
+  console.log(lastIdx, questions)
+  if (!lastIdx) return questions
+  let filterQuestions = questions.filter((q) => {
+    return q.i >= lastIdx
+  })
+  console.log(filterQuestions)
+  return filterQuestions
 }
 
 function App(props) {
   console.debug(props)
-
+  let emptyCookie = {
+    "Expires": getExpiration(30),
+    "date": props.date,
+    "appID": props.appID,
+    "language": props.language,
+    "answers": {},
+    "applicant": {},
+    "addressInfo": {},
+    "selectedRepairs": "",
+    "state": {
+      "thisQuestion": { i: 0 },
+      "proceed": false,
+      "rejectMsg": null,
+      "questionsDone": false,
+      "filloutApp": false,
+      "applicantDone": false
+    }
+  }
+  // If not already set, save a forever cookie so we know this persons appID in the future (not used for now)
+  !props.cookie.hasOwnProperty('appID') && saveCookie({ name: 'appID', value: { "Expires": "Tue, 19 Jan 2038 04:14:07 GMT", "appID": props.appID, "date": props.date } })
   const matches = useMediaQuery('(min-width:600px)')
   const [cookies, setCookies] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState : emptyCookie)
   const [awaitStateRestore, setAwaitStateRestore] = useState(false)
   const [awaitRelease, setAwaitRelease] = useState(false)
   const [instructions, setInstructions] = useState(props.instructions)
-  const [questions, setQuestions] = useState(props.instructions.Questions)
+  const [questions, setQuestions] = useState(props.cookie.hasOwnProperty('myState') ? trimAlreadyAnswered(props.cookie.myState.state.thisQuestion.i, props.instructions.Questions) : props.instructions.Questions)
   const [programList, setProgramList] = useState(props.instructions.ProgramList)
   const [programs, setPrograms] = useState(props.instructions.Programs)
   const [thisQuestion, setThisQuestion] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.state.thisQuestion : null)
@@ -59,13 +71,12 @@ function App(props) {
   const [answers, setAnswers] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.answers : props.instructions.Answers)
   const [repairs, setRepairs] = useState(props.instructions.RepairList)
   const [zipCodes, setZipCodes] = useState(props.instructions.ZipCodes)
-  const [language, setLanguage] = useState(props.language)
+  const [language, setLanguage] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.language : props.language)
   const [yesTranslate, setYesTranslate] = useState(language === 'en' ? "yes" : "sí")
-  const [rejectMsg, setRejectMsg] = useState(null)
+  const [rejectMsg, setRejectMsg] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.state.rejectMsg : null)
   const [proceed, setProceed] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.state.proceed : false)
   const [addressInfo, setAddressInfo] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.addressInfo : {})
   const [selectedRepairs, setSelectedRepairs] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.selectedRepairs : '')
-  const [lastQuestion, setLastQuestion] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.state.lastQuestion : false)
   const [questionsDone, setQuestionsDone] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.state.questionsDone : false)
   const [filloutApp, setFilloutApp] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.state.filloutApp : false)  /* tri state false - initial, yes - proceed, no - abort */
   const [applicant, setApplicant] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.applicant : {})
@@ -74,6 +85,7 @@ function App(props) {
   // Handle changes to the desired language
   const handleChange = (event, language) => {
     setLanguage(language);
+    setCookies(thisCookie => ({ ...thisCookie, language }))
     setYesTranslate(language === 'en' ? "yes" : "sí")
   };
 
@@ -131,7 +143,7 @@ function App(props) {
       setQuestions(curQuestions)
     }
   }
-   
+
   useEffect(() => {
     setAwaitRelease(true)
   }, [awaitStateRestore])
@@ -162,10 +174,8 @@ function App(props) {
 
   // 3- When an item is added or removed from the questions array, set the current question, also test for if it is the last question
   useEffect(() => {
-    lastQuestion && setQuestionsDone(true)
-    questions[0] && questions[0].hasOwnProperty('done') && questions[0].done === "yes" &&
-      setLastQuestion(true)
-    setThisQuestion(questions[0])
+    questions && questions[0] && setThisQuestion(questions[0])
+    questions && questions.length === 0 && setQuestionsDone(true)
   }, [questions])
 
   // 4- When the client has finished specifying the repairs, update the progress state and cookie
@@ -185,17 +195,20 @@ function App(props) {
   // When any major state changes occur update the cookie
   useEffect(() => {
     console.log('major state', awaitStateRestore)
-//    if (!awaitStateRestore) return
+    //    if (!awaitStateRestore) return
     let state = {
       thisQuestion: thisQuestion,
+      rejectMsg: rejectMsg,
       proceed: proceed,
-      lastQuestion: lastQuestion,
       questionsDone: questionsDone,
       filloutApp: filloutApp,
       applicantDone: applicantDone
     }
-    addressInfo && addressInfo.hasOwnProperty('address_components') && setCookies(thisCookie => ({ ...thisCookie, state }))
-  }, [thisQuestion, proceed, lastQuestion, questionsDone, filloutApp, applicantDone])
+    if (addressInfo && addressInfo.hasOwnProperty('address_components')) {
+      setCookies(thisCookie => ({ ...thisCookie, state }))
+      MongoAPI({ method: 'updateOne', db: 'HomeRepairApp', collection: 'App', data: { cookies }, find: { "_id": cookies.appID } })
+    }
+  }, [thisQuestion, rejectMsg, proceed, questionsDone, filloutApp, applicantDone])
 
   // Place holder for doing something when someone doesn't qualify
   useEffect(() => {
@@ -204,7 +217,7 @@ function App(props) {
 
   return (
     <div>
-      {((instructions && (!instructions.hasOwnProperty('Questions') || !instructions.hasOwnProperty('Programs'))) || !zipCodes ) ? <CircularProgress /> :
+      {((instructions && (!instructions.hasOwnProperty('Questions') || !instructions.hasOwnProperty('Programs'))) || !zipCodes) ? <CircularProgress /> :
         <div>
           <SelLanguage language={language} onChange={handleChange} matches={matches} />
           <ProgressPanel language={language} yesTranslate={yesTranslate} answers={answers} setAnswers={setAnswers} />
