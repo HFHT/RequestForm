@@ -1,3 +1,9 @@
+
+export const constants = {
+    'OTHERLINK' : 'https://www.habitattucson.org/services/other-resources/'
+}
+
+
 // Global object with headers, titles, etc. Uses language
 
 export const titles = (language, thisTitle) => {
@@ -6,6 +12,18 @@ export const titles = (language, thisTitle) => {
             en: 'Eligible Home Repair Programs',
             es: 'Programas de reparación de viviendas elegibles'
         },
+        "HR_NOTELIGIBLE": {
+            en: 'Unfortunately, you do not qualify for any of our Home Repair programs',
+            es: 'Desafortunadamente, no califica para ninguno de nuestros programas de reparación de viviendas'
+        },
+        "HR_OTHERRESOURCES": {
+            en: 'Thank you for thinking of Habitat for Humanity Tucson. We are sorry that you do not qualify for any of our Home Repair programs.',
+            es: 'Desafortunadamente, no califica para ninguno de nuestros programas de reparación de viviendas'
+        },  
+        "HR_OTHERLINK": {
+            en: 'Click to be redirected to a list of other providers of service',
+            es: 'Haga clic para ser redirigido a una lista de otros proveedores de servicios'
+        },               
         "HR_PROGRAM": {
             en: 'Repair Program',
             es: 'Programa de Reparación'
@@ -22,6 +40,14 @@ export const titles = (language, thisTitle) => {
             en: 'Cancel',
             es: 'Cancelar'
         },
+        "HR_SUBMITTED": {
+            en: 'Your home repair request has been submitted',
+            es: 'Su solicitud de reparación de vivienda ha sido enviada'
+        }, 
+        "HR_SUBMITTEXT": {
+            en: 'Please print this page for your records. You application ID is shown below:',
+            es: 'Por favor imprima esta página para sus archivos. Su ID de aplicación se muestra a continuación:'
+        },                
         "AP_EMERGENCY": {
             en: 'Continue application as a NON EMERGENCY.',
             es: 'Continúe con la aplicación como NO EMERGENCIA.'

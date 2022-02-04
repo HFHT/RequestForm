@@ -47,6 +47,7 @@ function App(props) {
     "applicant": {},
     "addressInfo": {},
     "selectedRepairs": "",
+    "eligiblePrograms": null,
     "state": {
       "thisQuestion": { i: 0 },
       "proceed": false,
@@ -66,6 +67,7 @@ function App(props) {
   const [questions, setQuestions] = useState(props.cookie.hasOwnProperty('myState') ? trimAlreadyAnswered(props.cookie.myState.state.thisQuestion.i, props.instructions.Questions) : props.instructions.Questions)
   const [programList, setProgramList] = useState(props.instructions.ProgramList)
   const [programs, setPrograms] = useState(props.instructions.Programs)
+  const [eligiblePrograms, setEligiblePrograms] = useState(null)
   const [thisQuestion, setThisQuestion] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.state.thisQuestion : null)
   const [income, setIncome] = useState(props.instructions.Income)
   const [answers, setAnswers] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.answers : props.instructions.Answers)
@@ -160,7 +162,8 @@ function App(props) {
   // 2) The answers
   // 3) The questions (they will change as a result of answers provided)
   // 4) The selected repairs
-  // 5) The applicant contact information
+  // 5) App determines eligible programs
+  // 6) The applicant contact information
 
   // 1- When the client has provided the address update the cookie
   useEffect(() => {
@@ -185,7 +188,12 @@ function App(props) {
     selectedRepairs !== '' && setCookies(thisCookie => ({ ...thisCookie, selectedRepairs }))
   }, [selectedRepairs])
 
-  // 5- When the client has finished fillout out form, set done
+  // 5- When the app figures out eligible programs, update the progress state and cookie
+  useEffect(() => {
+//    eligiblePrograms && setCookies(thisCookie => ({ ...thisCookie, eligiblePrograms }))
+  }, [eligiblePrograms])
+  
+  // 6- When the client has finished fillout out form, set done
   useEffect(() => {
     applicant && applicant.hasOwnProperty('name') && setApplicantDone(true)
     applicant && applicant.hasOwnProperty('name') && setCookies(thisCookie => ({ ...thisCookie, applicant }))
@@ -238,9 +246,9 @@ function App(props) {
               handleAnswer={handleAnswer}
               yesTranslate={yesTranslate} />}
           {questionsDone && selectedRepairs === "" && <RepairListPanel repairs={repairs} setRepairs={setRepairs} language={language} setSelectedRepairs={setSelectedRepairs} matches={matches} />}
-          {questionsDone && selectedRepairs && selectedRepairs !== "" && !filloutApp && <ResultPanel language={language} programList={programList} programs={programs} answers={answers} selectedRepairs={selectedRepairs} setter={setFilloutApp} matches={matches} />}
+          {questionsDone && selectedRepairs && selectedRepairs !== "" && !filloutApp && <ResultPanel language={language} programList={programList} programs={programs} answers={answers} selectedRepairs={selectedRepairs} setter={setFilloutApp} setEligiblePrograms={setEligiblePrograms} matches={matches} />}
           {questionsDone && filloutApp === 'yes' && !applicantDone && <ApplicantPanel language={language} programList={programList} programs={programs} answers={answers} selectedRepairs={selectedRepairs} setter={setApplicant} />}
-          {questionsDone && applicantDone && <Submitted />}
+          {questionsDone && applicantDone && <Submitted appID={props.appID} language={language} />}
           {questionsDone && filloutApp === 'no' && <h3>Cancelled</h3>}
 
           <Dialog
