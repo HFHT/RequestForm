@@ -38,7 +38,6 @@ export default function ResultPanel({ language, programList, programs, answers, 
                     return false
                 }
                 if (p.hasOwnProperty('ck')) {
-                    // need to handle spanish!!!!
                     return (answers[p.ck.ans] === p.ck.val)
                 }
                 return true
@@ -49,9 +48,10 @@ export default function ResultPanel({ language, programList, programs, answers, 
         setMatchPrograms(filterPrograms)
     }, [])
 
+    //Return just the program name, not the entire object
     useEffect(() => {
         matchPrograms &&
-            setEligiblePrograms(matchPrograms)
+            setEligiblePrograms(matchPrograms.map((p) => {return p.Program}))
     }, [matchPrograms])
 
     return (

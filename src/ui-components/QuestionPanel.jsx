@@ -11,17 +11,18 @@ export default function QuestionPanel({ thisQuestion, income, answers, language,
   }, [])
   return (
     <>
-      <Item elevation={0}><h3>{titles(language, 'QP_ANSWER')}</h3></Item>
+      <Item elevation={0}><h3 aria-label={titles(language, 'QP_ANSWER')}>{titles(language, 'QP_ANSWER')}</h3></Item>
       <Stack direction="row" spacing={2} >
         <Item elevation={0}>
           <ToggleButtonGroup
+            aria-label='this is a question'
             orientation={matches ? "horizontal" : "vertical"}
             color="primary"
             exclusive
             onChange={(e) => handleAnswer({ mode: 'shift', clientAns: e.target.value, ansKey: thisQuestion.attrib, reject: thisQuestion.reject, rejectMsg: thisQuestion.r, skip: thisQuestion.ck, proceed: thisQuestion.hasOwnProperty('proceed') })}
           >
-            <ToggleButton value={"yes"}>{yesTranslate}</ToggleButton>
-            <ToggleButton value="no">no</ToggleButton>
+            <ToggleButton value={"yes"} aria-label={`Yes button: ${thisQuestion.q[language]} ${ariaLabel(language, income.Values, thisQuestion.attrib === "Income")}`}>{yesTranslate}</ToggleButton>
+            <ToggleButton value="no" aria-label={`No button: ${thisQuestion.q[language]}`}>no</ToggleButton>
           </ToggleButtonGroup>
         </Item>
         <Item>
@@ -33,6 +34,19 @@ export default function QuestionPanel({ thisQuestion, income, answers, language,
       />
     </>
   )
+}
+
+const ariaLabel = (language, income, open) => {
+  if (!open) return ''
+  const theTable = income.map((row, i) => {
+    return language === 'en' ?
+      `Family size of ${row.size} with maximum income of ${parseInt(row.maxIncome.replace(/\$|,/g, ''))} dollars`
+      :
+      `Tamaño de familia de ${row.size} con ingreso máximo de ${parseInt(row.maxIncome.replace(/\$|,/g, ''))} dólares`
+  })
+  return theTable
+
+
 }
 
 const Incomex = ({ open, language, income, subHeader, matches }) => {

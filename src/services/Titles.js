@@ -20,6 +20,10 @@ export const titles = (language, thisTitle) => {
             en: 'Thank you for thinking of Habitat for Humanity Tucson. We are sorry that you do not qualify for any of our Home Repair programs.',
             es: 'Desafortunadamente, no califica para ninguno de nuestros programas de reparación de viviendas'
         },  
+        "HR_NOTQUALIFIED": {
+            en: 'Unfortunately, you do not qualify for our Home Repair program',
+            es: 'Desafortunadamente, no califica para nuestro programa de reparación de viviendas'
+        },        
         "HR_OTHERLINK": {
             en: 'Click to be redirected to a list of other providers of service',
             es: 'Haga clic para ser redirigido a una lista de otros proveedores de servicios'

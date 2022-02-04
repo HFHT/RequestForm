@@ -14,7 +14,7 @@ export default function ProgressPanel({ answers, yesTranslate, setAnswers, langu
                 alignItems="baseline" >
                 {isYes(answers.County) &&
                     <Grid item >
-                        <Chip variant="outlined" color="success" label={language === 'en' ? 'Resident' : 'Residente'} size="small" icon={<CheckIcon />} />
+                        <Chip variant="outlined" color="success" aria-lable='You are a resident of Pima County' label={language === 'en' ? 'Resident' : 'Residente'} size="small" icon={<CheckIcon />} />
                     </Grid>
                 }
                 {answers.City &&

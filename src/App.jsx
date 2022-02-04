@@ -14,6 +14,8 @@ import { titles } from './services/Titles'
 import { whichBrowser } from './services/WhichBrowser';
 import { getExpiration, saveCookie } from './services/HandleCookie';
 import { MongoAPI } from './services/MongoDBAPI'
+import { saveToDB } from './services/saveToDB';
+import NotQualified from './ui-components/NotQualified';
 
 // Helper function to update the answers state 
 const updateAnswer = ({ ansKey, ansValue, setter }) => {
@@ -48,10 +50,11 @@ function App(props) {
     "addressInfo": {},
     "selectedRepairs": "",
     "eligiblePrograms": null,
+    "thisQuestion": { i: 0 },
+    "rejectMsg": null,
     "state": {
-      "thisQuestion": { i: 0 },
+      "isRejected": false,
       "proceed": false,
-      "rejectMsg": null,
       "questionsDone": false,
       "filloutApp": false,
       "applicantDone": false
@@ -64,18 +67,18 @@ function App(props) {
   const [awaitStateRestore, setAwaitStateRestore] = useState(false)
   const [awaitRelease, setAwaitRelease] = useState(false)
   const [instructions, setInstructions] = useState(props.instructions)
-  const [questions, setQuestions] = useState(props.cookie.hasOwnProperty('myState') ? trimAlreadyAnswered(props.cookie.myState.state.thisQuestion.i, props.instructions.Questions) : props.instructions.Questions)
+  const [questions, setQuestions] = useState(props.cookie.hasOwnProperty('myState') ? trimAlreadyAnswered(props.cookie.myState.thisQuestion.i, props.instructions.Questions) : props.instructions.Questions)
   const [programList, setProgramList] = useState(props.instructions.ProgramList)
   const [programs, setPrograms] = useState(props.instructions.Programs)
   const [eligiblePrograms, setEligiblePrograms] = useState(null)
-  const [thisQuestion, setThisQuestion] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.state.thisQuestion : null)
+  const [thisQuestion, setThisQuestion] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.thisQuestion : null)
   const [income, setIncome] = useState(props.instructions.Income)
   const [answers, setAnswers] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.answers : props.instructions.Answers)
   const [repairs, setRepairs] = useState(props.instructions.RepairList)
   const [zipCodes, setZipCodes] = useState(props.instructions.ZipCodes)
   const [language, setLanguage] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.language : props.language)
   const [yesTranslate, setYesTranslate] = useState(language === 'en' ? "yes" : "sí")
-  const [rejectMsg, setRejectMsg] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.state.rejectMsg : null)
+  const [rejectMsg, setRejectMsg] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.rejectMsg : null)
   const [proceed, setProceed] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.state.proceed : false)
   const [addressInfo, setAddressInfo] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.addressInfo : {})
   const [selectedRepairs, setSelectedRepairs] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.selectedRepairs : '')
@@ -83,6 +86,10 @@ function App(props) {
   const [filloutApp, setFilloutApp] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.state.filloutApp : false)  /* tri state false - initial, yes - proceed, no - abort */
   const [applicant, setApplicant] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.applicant : {})
   const [applicantDone, setApplicantDone] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.state.applicantDone : false)
+  const [haveAddress, setHaveAddress] = useState(false)
+  const [haveRepairs, setHaveRepairs] = useState(false)
+  const [haveEligiblePrograms, setHaveEligiblePrograms] = useState(false)
+  const [isRejected, setIsRejected] = useState(false)
 
   // Handle changes to the desired language
   const handleChange = (event, language) => {
@@ -164,10 +171,14 @@ function App(props) {
   // 4) The selected repairs
   // 5) App determines eligible programs
   // 6) The applicant contact information
+  // 7) The applicant does not meet the criteria
 
   // 1- When the client has provided the address update the cookie
   useEffect(() => {
-    addressInfo && addressInfo.hasOwnProperty('address_components') && setCookies(thisCookie => ({ ...thisCookie, addressInfo }))
+    if (addressInfo && addressInfo.hasOwnProperty('address_components')) {
+      setCookies(thisCookie => ({ ...thisCookie, addressInfo }))
+      setHaveAddress(true)
+    }
   }, [addressInfo])
 
   // 2- When the client has provided an answer to a question update the cookie
@@ -183,51 +194,61 @@ function App(props) {
 
   // 4- When the client has finished specifying the repairs, update the progress state and cookie
   useEffect(() => {
-    selectedRepairs !== '' &&
+    if (selectedRepairs !== '') {
       handleAnswer({ mode: null, ansKey: "Repairs", clientAns: "yes", reject: [], rejectMsg: null, skip: {} })
-    selectedRepairs !== '' && setCookies(thisCookie => ({ ...thisCookie, selectedRepairs }))
+      setCookies(thisCookie => ({ ...thisCookie, selectedRepairs }))
+      setHaveRepairs(true)
+    }
   }, [selectedRepairs])
 
   // 5- When the app figures out eligible programs, update the progress state and cookie
   useEffect(() => {
-//    eligiblePrograms && setCookies(thisCookie => ({ ...thisCookie, eligiblePrograms }))
+    if (eligiblePrograms) {
+      setCookies(thisCookie => ({ ...thisCookie, eligiblePrograms }))
+      setHaveEligiblePrograms(true)
+    }
   }, [eligiblePrograms])
-  
+
   // 6- When the client has finished fillout out form, set done
   useEffect(() => {
     applicant && applicant.hasOwnProperty('name') && setApplicantDone(true)
     applicant && applicant.hasOwnProperty('name') && setCookies(thisCookie => ({ ...thisCookie, applicant }))
   }, [applicant])
 
+  // 7 - Set rejectMsg when the client doesn't qualify
+  useEffect(() => {
+    if (rejectMsg) {
+      setCookies(thisCookie => ({ ...thisCookie, rejectMsg }))
+      setIsRejected(true)
+    }
+  }, [rejectMsg])
+
   // In order to restore state from the cookie, need to capture all major state changes
   // When any major state changes occur update the cookie
   useEffect(() => {
     console.log('major state', awaitStateRestore)
-    //    if (!awaitStateRestore) return
-    let state = {
-      thisQuestion: thisQuestion,
-      rejectMsg: rejectMsg,
-      proceed: proceed,
-      questionsDone: questionsDone,
-      filloutApp: filloutApp,
-      applicantDone: applicantDone
-    }
     if (addressInfo && addressInfo.hasOwnProperty('address_components')) {
+      var state = {
+        isRejected: isRejected,
+        proceed: proceed,
+        questionsDone: questionsDone,
+        filloutApp: filloutApp,
+        applicantDone: applicantDone
+      }
       setCookies(thisCookie => ({ ...thisCookie, state }))
-      MongoAPI({ method: 'updateOne', db: 'HomeRepairApp', collection: 'App', data: { cookies }, find: { "_id": cookies.appID } })
+      saveToDB(cookies)
     }
-  }, [thisQuestion, rejectMsg, proceed, questionsDone, filloutApp, applicantDone])
+  }, [haveAddress, haveRepairs, haveEligiblePrograms, isRejected, proceed, questionsDone, filloutApp, applicantDone])
 
-  // Place holder for doing something when someone doesn't qualify
   useEffect(() => {
-    console.log(rejectMsg)
-  }, [rejectMsg])
+    thisQuestion && setCookies(thisCookie => ({ ...thisCookie, thisQuestion }))
+  }, [thisQuestion])
 
   return (
-    <div>
+    <>
       {((instructions && (!instructions.hasOwnProperty('Questions') || !instructions.hasOwnProperty('Programs'))) || !zipCodes) ? <CircularProgress /> :
-        <div>
-          <SelLanguage language={language} onChange={handleChange} matches={matches} />
+        <>
+          <SelLanguage aria-label='123456' language={language} onChange={handleChange} matches={matches} />
           <ProgressPanel language={language} yesTranslate={yesTranslate} answers={answers} setAnswers={setAnswers} />
           <GoogleAddress
             language={language}
@@ -250,30 +271,10 @@ function App(props) {
           {questionsDone && filloutApp === 'yes' && !applicantDone && <ApplicantPanel language={language} programList={programList} programs={programs} answers={answers} selectedRepairs={selectedRepairs} setter={setApplicant} />}
           {questionsDone && applicantDone && <Submitted appID={props.appID} language={language} />}
           {questionsDone && filloutApp === 'no' && <h3>Cancelled</h3>}
-
-          <Dialog
-            open={rejectMsg !== null}
-            onClose={handleClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-          >
-            <DialogTitle id="alert-dialog-title">
-              {rejectMsg === null ? "" : rejectMsg[language]}
-            </DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                Insert <a href="https://www.habitattucson.org/services/other-resources/">link</a> to other possible services.
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              {proceed &&
-                <Button onClick={handleProceed}>{titles(language, 'AP_EMERGENCY')}</Button>
-              }
-            </DialogActions>
-          </Dialog>
-        </div>
+          <NotQualified open={rejectMsg !== null} language={language} msg={rejectMsg} handleClose={handleClose} proceed={proceed} handleProceed={handleProceed} />
+        </>
       }
-    </div>
+    </>
   )
 }
 export default App;

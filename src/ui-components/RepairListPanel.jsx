@@ -46,7 +46,8 @@ export default function RepairListPanel({ repairs, setRepairs, setSelectedRepair
                                 <FormControlLabel key={i} control={
                                     <Switch checked={item.set}
                                         onChange={(e) => handleRepairSel({ event: e, repairs: repairs, thisRepair: Object.keys(item)[0] })}
-                                        name={Object.keys(item)[0]} />
+                                        name={Object.keys(item)[0]} 
+                                        />
                                 }
                                     label={item[Object.keys(item)[0]][language]}
                                 />
