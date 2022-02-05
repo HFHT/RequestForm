@@ -14,7 +14,7 @@ export default function ProgressPanel({ answers, yesTranslate, setAnswers, langu
                 alignItems="baseline" >
                 {isYes(answers.County) &&
                     <Grid item >
-                        <Chip variant="outlined" color="success" aria-lable='You are a resident of Pima County' label={language === 'en' ? 'Resident' : 'Residente'} size="small" icon={<CheckIcon />} />
+                        <Chip variant="outlined" color="success" label={language === 'en' ? 'Resident' : 'Residente'} size="small" icon={<CheckIcon />} />
                     </Grid>
                 }
                 {answers.City &&
@@ -34,7 +34,7 @@ export default function ProgressPanel({ answers, yesTranslate, setAnswers, langu
                 }
                 {answers.MfgHome &&
                     <Grid item >
-                        <Chip variant="outlined" color="success" label={language === 'en' ? 'Mfg Home' : 'Casa Fabricada'} size="small" icon={<CheckIcon />} />
+                        <Chip variant="outlined" color="success" label={language === 'en' ? 'Mfg Home' : 'Casa Fabricada'} size="small" icon={answers.MfgHome === "no" ? <NotInterestedIcon />: <CheckIcon />} />
                     </Grid>
                 }
                 {answers.OwnLot === 'no' &&

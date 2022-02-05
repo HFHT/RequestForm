@@ -269,7 +269,7 @@ function App(props) {
           {questionsDone && selectedRepairs === "" && <RepairListPanel repairs={repairs} setRepairs={setRepairs} language={language} setSelectedRepairs={setSelectedRepairs} matches={matches} />}
           {questionsDone && selectedRepairs && selectedRepairs !== "" && !filloutApp && <ResultPanel language={language} programList={programList} programs={programs} answers={answers} selectedRepairs={selectedRepairs} setter={setFilloutApp} setEligiblePrograms={setEligiblePrograms} matches={matches} />}
           {questionsDone && filloutApp === 'yes' && !applicantDone && <ApplicantPanel language={language} programList={programList} programs={programs} answers={answers} selectedRepairs={selectedRepairs} setter={setApplicant} />}
-          {questionsDone && applicantDone && <Submitted appID={props.appID} language={language} />}
+          {questionsDone && applicantDone && <Submitted appID={cookies.appID} language={language} />}
           {questionsDone && filloutApp === 'no' && <h3>Cancelled</h3>}
           <NotQualified open={rejectMsg !== null} language={language} msg={rejectMsg} handleClose={handleClose} proceed={proceed} handleProceed={handleProceed} />
         </>
