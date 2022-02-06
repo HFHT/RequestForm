@@ -24,7 +24,10 @@ async function getInstructions() {
     const instructions = { Programs: results.Programs.Programs, ProgramList: results.Questions.Programs, Income: results.Questions.Income, RepairList: results.Questions.RepairList, Answers: results.Questions.Answers, Questions: results.Questions.Questions, ZipCodes: results.ZipCodes.ZipCodes }
     ReactDOM.render(
       <React.StrictMode>
-        {<App language={language.substring(0, 2)} date={date.toISOString()} appID={(Date.now()/10).toFixed()} debug={params.get('debug')} instructions={instructions} cookie={params.get('debug') ? '' : parseCookie(document.cookie)} />}
+        {
+          !('fetch' in window) ? <h3>Fetch API not found, please upgrade your browser.</h3> :
+          <App language={language.substring(0, 2)} date={date.toISOString()} appID={(Date.now()/10).toFixed()} debug={params.get('debug')} instructions={instructions} cookie={params.get('debug') ? '' : parseCookie(document.cookie)} />
+          }
       </React.StrictMode>,
       document.getElementById('root')
     );

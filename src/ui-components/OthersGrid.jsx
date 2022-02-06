@@ -25,7 +25,7 @@ export default function OthersGrid({ language, others = [], error = {}, matches,
             >
               <TableCell sx={{ paddingRight: 0.5 }}>
                 <TextField
-                  id="name"
+                  id="Name"
                   placeholder={titles(language, 'OT_NAME')}
                   variant="filled"
                   size="small"
@@ -39,7 +39,7 @@ export default function OthersGrid({ language, others = [], error = {}, matches,
               </TableCell>
               <TableCell sx={{ paddingRight: 0.5 }}>
                 <TextField
-                  id="age"
+                  id="Age"
                   placeholder={titles(language, 'OT_AGE')}
                   variant="filled"
                   size="small"                  
@@ -52,7 +52,7 @@ export default function OthersGrid({ language, others = [], error = {}, matches,
               </TableCell>
               <TableCell align="right">
                 <TextField
-                  id="relation"
+                  id="Relation"
                   placeholder={titles(language, 'OT_RELATION')}
                   variant="filled"
                   size="small"                  

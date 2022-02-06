@@ -53,7 +53,7 @@ export default function ApplicantPanel({ language, matches, setter }) {
         militaryBranch: [],
         militaryService: '',
         others: [{ name: '', age: '', relation: '' }],
-        lot: '',
+        lotNo: '',
         repairs: ''
     })
     const [formOk, setFormOk] = useState(false)
@@ -237,9 +237,9 @@ export default function ApplicantPanel({ language, matches, setter }) {
                             }))}
                             error={error.gender}
                         >
-                            <MenuItem value={'female'}>{titles(language, 'CA_GENFEMALE')}</MenuItem>
-                            <MenuItem value={'male'}>{titles(language, 'CA_GENMALE')}</MenuItem>
-                            <MenuItem value={'na'}>{titles(language, 'CA_GENNA')}</MenuItem>
+                            <MenuItem value={'Female'}>{titles(language, 'CA_GENFEMALE')}</MenuItem>
+                            <MenuItem value={'Male'}>{titles(language, 'CA_GENMALE')}</MenuItem>
+                            <MenuItem value={'Other'}>{titles(language, 'CA_GENNA')}</MenuItem>
                         </Select>
                     </FormControl>
                     <FormControl variant="filled" sx={{ m: 1, minWidth: 150 }} required>
