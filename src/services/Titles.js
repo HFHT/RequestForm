@@ -33,8 +33,8 @@ export const titles = (language, thisTitle) => {
             es: 'Programa de Reparación'
         },
         "HR_WAITLIST": {
-            en: 'Waitlist',
-            es: 'lista de espera'
+            en: 'Wait_Time',
+            es: 'Espera_Hora'
         },
         "HR_PROCEED": {
             en: 'Proceed with application',

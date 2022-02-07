@@ -17,8 +17,8 @@ const checker = (selected, allowed) => selected.every(s => {
     return allowed.includes(s)
 });
 
-export default function ResultPanel({ language, programList, programs, answers, selectedRepairs, matches, setter, setEligiblePrograms }) {
-    console.log(programList, programs, answers, selectedRepairs)
+export default function ResultPanel({ language, programList, answers, selectedRepairs, matches, setter, setEligiblePrograms }) {
+    console.log(programList, answers, selectedRepairs)
     const [matchPrograms, setMatchPrograms] = useState(null)
     const [alignment, setAlignment] = useState('yes')
     const handleChange = ((e, newAlignment) => {
@@ -33,7 +33,7 @@ export default function ResultPanel({ language, programList, programs, answers, 
     // Determine which repair programs the applicant is eligible for
     useEffect(() => {
         let filterPrograms = programList.filter((p) => {
-            if (p.Active) {
+            if (p.Active==='Yes') {
                 if (p.hasOwnProperty('Repair') && !checkRepairs(selectedRepairs, p.Repair)) {
                     return false
                 }
@@ -56,7 +56,7 @@ export default function ResultPanel({ language, programList, programs, answers, 
 
     return (
         <>
-            {matchPrograms && programs && Object.keys(programs).length > 0 &&
+            {matchPrograms && programList && Object.keys(programList).length > 0 &&
                 <>
                     {(matchPrograms.length < 1) ? <NotQualified language={language} /> :
                         <>
@@ -76,9 +76,9 @@ export default function ResultPanel({ language, programList, programs, answers, 
                                                 hover={true}
                                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                             >
-                                                {p.Funding && <TableCell>{p.r[language]}</TableCell>}
-                                                {!p.Funding && <TableCell>{p.r[language]}<br /><b><i>{p.f[language]}</i></b></TableCell>}
-                                                <TableCell align="right">{programs[p.Program]}</TableCell>
+                                                {p.Funding==='Yes' && <TableCell>{p.r[language]}</TableCell>}
+                                                {p.Funding!=='Yes' && <TableCell>{p.r[language]}<br /><b><i>{p.f[language]}</i></b></TableCell>}
+                                                <TableCell align="center">{`${p.WaitTime} months`}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>

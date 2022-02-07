@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import { parseCookie } from './services/HandleCookie'
-import { MongoAPI } from './services/MongoDBAPI'
+import { MongoAPI, getPgmSettingfromLegacy } from './services/MongoDBAPI'
+import {mergeByProperty} from './services/Functions'
 
 require('dotenv').config()
 var language = window.navigator.language
@@ -15,13 +16,16 @@ let response = {}
 async function getInstructions() {
   response.Questions = await MongoAPI({ method: 'max', db: 'HomeRepairApp', collection: 'Questions', find: "Version", limit: 1 })
   response.ZipCodes = await MongoAPI({ method: 'find', db: 'HomeRepairApp', collection: 'ZipCodes', find: { "_id": 0 } })
-  response.Programs = await MongoAPI({ method: 'find', db: 'HomeRepairApp', collection: 'Programs', find: { "_id": 0 } })
+  response.Legacy = await getPgmSettingfromLegacy()
   return response
 }
 (async () => {
   try {
     const results = await getInstructions().then(data => data)
-    const instructions = { Programs: results.Programs.Programs, ProgramList: results.Questions.Programs, Income: results.Questions.Income, RepairList: results.Questions.RepairList, Answers: results.Questions.Answers, Questions: results.Questions.Questions, ZipCodes: results.ZipCodes.ZipCodes }
+    // Merge the manually adjusted settings with the program control instructions (adds wait time and program funded/active)
+    mergeByProperty(results.Questions.Programs, results.Legacy, 'Program')
+    console.log(results)
+    const instructions = { ProgramList: results.Questions.Programs, Income: results.Questions.Income, RepairList: results.Questions.RepairList, Answers: results.Questions.Answers, Questions: results.Questions.Questions, ZipCodes: results.ZipCodes.ZipCodes }
     ReactDOM.render(
       <React.StrictMode>
         {

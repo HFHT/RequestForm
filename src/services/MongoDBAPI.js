@@ -33,3 +33,19 @@ export async function MongoAPI(req, isObj = false) {
         .catch(error => console.log(error));
 
 }
+
+export async function getPgmSettingfromLegacy() {
+    const options = {
+        method: "GET",
+        headers: new Headers({
+            'Content-Type': 'application/json; charset=UTF-8'
+        })
+    };
+
+    const baseURL = `${process.env.REACT_APP_AZURE_FUNC_URL}`;
+
+    return fetch(`https://hfht.azhoffs.com/assets/code/HR_appGetPgmSetting.php`, options)
+        .then(response => response.json())
+        .then(data => { console.log(data); return data.data })
+        .catch(error => console.log(error));
+}

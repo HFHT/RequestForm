@@ -11,7 +11,6 @@ import ApplicantPanel from './ui-components/ApplicantPanel';
 import Submitted from './ui-components/Submitted';
 import { Item } from './ui-components/Item';
 import { titles } from './services/Titles'
-import { whichBrowser } from './services/WhichBrowser';
 import { getExpiration, saveCookie } from './services/HandleCookie';
 import { MongoAPI } from './services/MongoDBAPI'
 import { saveToDB } from './services/saveToDB';
@@ -69,7 +68,6 @@ function App(props) {
   const [instructions, setInstructions] = useState(props.instructions)
   const [questions, setQuestions] = useState(props.cookie.hasOwnProperty('myState') ? trimAlreadyAnswered(props.cookie.myState.thisQuestion.i, props.instructions.Questions) : props.instructions.Questions)
   const [programList, setProgramList] = useState(props.instructions.ProgramList)
-  const [programs, setPrograms] = useState(props.instructions.Programs)
   const [eligiblePrograms, setEligiblePrograms] = useState(null)
   const [thisQuestion, setThisQuestion] = useState(props.cookie.hasOwnProperty('myState') ? props.cookie.myState.thisQuestion : null)
   const [income, setIncome] = useState(props.instructions.Income)
@@ -246,7 +244,7 @@ function App(props) {
 
   return (
     <>
-      {((instructions && (!instructions.hasOwnProperty('Questions') || !instructions.hasOwnProperty('Programs'))) || !zipCodes) ? <CircularProgress /> :
+      {((instructions && (!instructions.hasOwnProperty('Questions') || !instructions.hasOwnProperty('ProgramList'))) || !zipCodes) ? <CircularProgress /> :
         <>
           <SelLanguage aria-label='123456' language={language} onChange={handleChange} matches={matches} />
           <ProgressPanel language={language} yesTranslate={yesTranslate} answers={answers} setAnswers={setAnswers} />
@@ -267,8 +265,8 @@ function App(props) {
               handleAnswer={handleAnswer}
               yesTranslate={yesTranslate} />}
           {questionsDone && selectedRepairs === "" && <RepairListPanel repairs={repairs} setRepairs={setRepairs} language={language} setSelectedRepairs={setSelectedRepairs} matches={matches} />}
-          {questionsDone && selectedRepairs && selectedRepairs !== "" && !filloutApp && <ResultPanel language={language} programList={programList} programs={programs} answers={answers} selectedRepairs={selectedRepairs} setter={setFilloutApp} setEligiblePrograms={setEligiblePrograms} matches={matches} />}
-          {questionsDone && filloutApp === 'yes' && !applicantDone && <ApplicantPanel language={language} programList={programList} programs={programs} answers={answers} selectedRepairs={selectedRepairs} setter={setApplicant} />}
+          {questionsDone && selectedRepairs && selectedRepairs !== "" && !filloutApp && <ResultPanel language={language} programList={programList} answers={answers} selectedRepairs={selectedRepairs} setter={setFilloutApp} setEligiblePrograms={setEligiblePrograms} matches={matches} />}
+          {questionsDone && filloutApp === 'yes' && !applicantDone && <ApplicantPanel language={language} setter={setApplicant} />}
           {questionsDone && applicantDone && <Submitted appID={cookies.appID} language={language} />}
           {questionsDone && filloutApp === 'no' && <h3>Cancelled</h3>}
           <NotQualified open={rejectMsg !== null} language={language} msg={rejectMsg} handleClose={handleClose} proceed={proceed} handleProceed={handleProceed} />
