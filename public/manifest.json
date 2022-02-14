@@ -6,6 +6,11 @@
       "src": "favicon.ico",
       "sizes": "16x16",
       "type": "image/x-icon"
+    },
+    {
+      "src": "HFHI-WhiteOnBlack-favicon.png",
+      "type": "image/png",
+      "sizes": "192x192"
     }
   ],
   "start_url": "/",
