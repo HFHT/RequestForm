@@ -1,6 +1,4 @@
-import { useState } from 'react';
-import { ToggleButtonGroup, ToggleButton, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material'
-import { titles, constants } from '../services/Titles'
+import { titles } from '../services/Titles'
 import { Item } from './Item';
 
 export default function Submitted({language, appID}) {

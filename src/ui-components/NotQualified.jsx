@@ -1,16 +1,17 @@
 import { useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button, CircularProgress, ToggleButton, ToggleButtonGroup, Stack, useMediaQuery } from '@mui/material'
+import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import { titles, constants } from '../services/Titles'
-import { Item } from './Item';
 
 export default function NotQualified({ open, language, msg, handleClose, proceed, handleProceed }) {
-    const [selection, setSelection] = useState(proceed ? 'emergency' : 'otherLink')
-    const handleClick = ((e, theSelection) => {
+    console.log(proceed)
+    const [selection, setSelection] = useState('')
+    const handleClick = ((theSelection) => {
+        console.log(theSelection)
         setSelection(theSelection)
-        theSelection === 'emergency' ?
-            handleProceed()
-            :
+        theSelection === 'otherLink' ?
             window.open(constants.OTHERLINK, "_self")
+            :
+            handleProceed()
     })
     return (<>
         <Dialog
@@ -20,23 +21,31 @@ export default function NotQualified({ open, language, msg, handleClose, proceed
             aria-describedby="alert-dialog-description"
         >
             <DialogTitle id="alert-dialog-title">
-                {titles(language, 'HR_NOTQUALIFIED')}
+                {msg === null ? "" : msg[language]}
             </DialogTitle>
             <DialogContent>
                 <DialogContentText id="alert-dialog-description">
-                    {msg === null ? "" : msg[language]}
+                    {proceed ?
+                        titles(language, 'HR_NOTEMERGENCY')
+                        :
+                        titles(language, 'HR_NOTQUALIFIED')}
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
                 <ToggleButtonGroup
                     color="info"
-                    value={selection}
+                    value={selection === '' ? (proceed ? 'emergency' : 'otherLink') : 'otherLink'}
                     exclusive
                     orientation='vertical'
-                    onChange={handleClick}
                 >
-                    {proceed && <ToggleButton value='emergency'>{titles(language, 'AP_EMERGENCY')}</ToggleButton>}
-                    <ToggleButton value='otherLink'>{titles(language, 'HR_OTHERLINK')}</ToggleButton>
+                    {proceed &&
+                        <ToggleButton value='emergency' onClick={() => handleClick('emergency')}>
+                            {titles(language, 'AP_EMERGENCY')}
+                        </ToggleButton>
+                    }
+                    <ToggleButton value='otherLink' onClick={() => handleClick('otherLink')}>
+                        {titles(language, 'HR_OTHERLINK')}
+                    </ToggleButton>
                 </ToggleButtonGroup>
             </DialogActions>
         </Dialog>

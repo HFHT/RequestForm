@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button, CircularProgress, ToggleButton, ToggleButtonGroup, Stack, useMediaQuery } from '@mui/material'
+import { CircularProgress, ToggleButton, ToggleButtonGroup, Stack, useMediaQuery } from '@mui/material'
 
 import './App.css';
 import GoogleAddress from './ui-components/GoogleAddress';
@@ -10,11 +10,10 @@ import ResultPanel from './ui-components/ResultPanel';
 import ApplicantPanel from './ui-components/ApplicantPanel';
 import Submitted from './ui-components/Submitted';
 import { Item } from './ui-components/Item';
-import { titles } from './services/Titles'
 import { getExpiration, saveCookie } from './services/HandleCookie';
-import { MongoAPI } from './services/MongoDBAPI'
 import { saveToDB } from './services/saveToDB';
 import NotQualified from './ui-components/NotQualified';
+import Cancelled from './ui-components/Cancelled';
 
 // Helper function to update the answers state 
 const updateAnswer = ({ ansKey, ansValue, setter }) => {
@@ -136,8 +135,8 @@ function App(props) {
   const handleAnswer = ({ mode, clientAns, ansKey, reject, rejectMsg, skip, proceed }) => {
     updateAnswer({ ansKey: ansKey, ansValue: clientAns, setter: setAnswers })
     if (reject.indexOf(clientAns) > -1) {
-      setProceed(proceed)
       setRejectMsg(rejectMsg)
+      setProceed(proceed)
     }
     if (mode === 'shift') {
       let curQuestions = [...questions]
@@ -268,7 +267,7 @@ function App(props) {
           {questionsDone && selectedRepairs && selectedRepairs !== "" && !filloutApp && <ResultPanel language={language} programList={programList} answers={answers} selectedRepairs={selectedRepairs} setter={setFilloutApp} setEligiblePrograms={setEligiblePrograms} matches={matches} />}
           {questionsDone && filloutApp === 'yes' && !applicantDone && <ApplicantPanel language={language} setter={setApplicant} />}
           {questionsDone && applicantDone && <Submitted appID={cookies.appID} language={language} />}
-          {questionsDone && filloutApp === 'no' && <h3>Cancelled</h3>}
+          {questionsDone && filloutApp === 'no' && <Cancelled appID={cookies.appID} language={language} />}
           <NotQualified open={rejectMsg !== null} language={language} msg={rejectMsg} handleClose={handleClose} proceed={proceed} handleProceed={handleProceed} />
         </>
       }

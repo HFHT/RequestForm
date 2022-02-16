@@ -23,7 +23,11 @@ export const titles = (language, thisTitle) => {
         "HR_NOTQUALIFIED": {
             en: 'Unfortunately, you do not qualify for our Home Repair program',
             es: 'Desafortunadamente, no califica para nuestro programa de reparación de viviendas'
-        },        
+        }, 
+        "HR_NOTEMERGENCY": {
+            en: 'You may choose to continue with the understanding that Home Repair cannot be used for urgent repairs.',
+            es: 'Puede optar por continuar con el entendimiento de que Home Repair no se puede utilizar para reparaciones urgentes.'
+        },               
         "HR_OTHERLINK": {
             en: 'Click to be redirected to a list of other providers of service',
             es: 'Haga clic para ser redirigido a una lista de otros proveedores de servicios'
@@ -51,7 +55,16 @@ export const titles = (language, thisTitle) => {
         "HR_SUBMITTEXT": {
             en: 'Please print this page for your records. You application ID is shown below:',
             es: 'Por favor imprima esta página para sus archivos. Su ID de aplicación se muestra a continuación:'
+        },   
+        "HR_CANCELLED": {
+            en: 'Thank you for considering Habitat for Humanity Tucson.',
+            es: 'Gracias por considerar Hábitat para la Humanidad Tucson.'
+        }, 
+        "HR_CANCELLEDTEXT": {
+            en: 'You have chosen to not complete your home repair request. If your situation changes please feel free to contact us in the future.',
+            es: 'Ha optado por no completar su solicitud de reparación del hogar. Si su situación cambia, no dude en contactarnos en el futuro.'
         },                
+
         "AP_EMERGENCY": {
             en: 'Continue application as a NON EMERGENCY.',
             es: 'Continúe con la aplicación como NO EMERGENCIA.'
