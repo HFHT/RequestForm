@@ -30,7 +30,7 @@ export const getExpiration = (offset) => {
 }
 
 export const saveCookie = ({name, value}) => {
-    document.cookie = `${name}=${JSON.stringify(value)}; expires=${value.Expires}`
+    document.cookie = `${name}=${JSON.stringify(value)}; expires=${value.Expires}; SameSite=None; Secure`
 }
 
 export const serializeCookie = (name, val) =>
