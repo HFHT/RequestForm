@@ -38,7 +38,7 @@ export const titles = (language, thisTitle) => {
         },
         "HR_WAITLIST": {
             en: 'Wait_Time',
-            es: 'Tiempo de sEspera'
+            es: 'Tiempo de Espera'
         },
         "HR_PROCEED": {
             en: 'Proceed with application',
