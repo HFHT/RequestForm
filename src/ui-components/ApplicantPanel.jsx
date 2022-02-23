@@ -294,7 +294,7 @@ export default function ApplicantPanel({ language, matches, setter }) {
                         helperText={titles(language, 'CA_MSDATESEXAMPLE')}
                         placeholder={titles(language, 'CA_MSDATES')}
                         variant="filled"
-                        inputProps={{ 'data-lpignore': 'true' }}
+                        inputProps={{ 'data-lpignore': 'true', 'autocomplete': 'off' }}
                         value={applicant.militaryService}
                         onChange={(e) => setApplicant(appl => ({
                             ...appl,
@@ -333,7 +333,7 @@ export default function ApplicantPanel({ language, matches, setter }) {
                             ...{ lotNo: e.target.value }
                         }))}
                         error={error.lotNo}
-                        inputProps={{ size: 14, 'data-lpignore': 'true' }}
+                        inputProps={{ size: 14, 'data-lpignore': 'true', 'autocomplete': 'off' }}
                         type="text"
                     />
                 </Box>
