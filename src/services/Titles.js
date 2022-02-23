@@ -18,7 +18,7 @@ export const titles = (language, thisTitle) => {
         },
         "HR_OTHERRESOURCES": {
             en: 'Thank you for thinking of Habitat for Humanity Tucson. We are sorry that you do not qualify for any of our Home Repair programs.',
-            es: 'Desafortunadamente, no califica para ninguno de nuestros programas de reparación de viviendas'
+            es: 'Gracias por pensar en Hábitat para la Humanidad Tucson. Lamentamos que no califique para ninguno de nuestros programas de reparación de viviendas'
         },  
         "HR_NOTQUALIFIED": {
             en: 'Unfortunately, you do not qualify for our Home Repair program',
@@ -26,7 +26,7 @@ export const titles = (language, thisTitle) => {
         }, 
         "HR_NOTEMERGENCY": {
             en: 'You may choose to continue with the understanding that Home Repair cannot be used for urgent repairs.',
-            es: 'Puede optar por continuar con el entendimiento de que Home Repair no se puede utilizar para reparaciones urgentes.'
+            es: 'Puede optar por continuar con el entendimiento de que Reparacion de Viviendas no se puede utilizar para reparaciones urgentes.'
         },               
         "HR_OTHERLINK": {
             en: 'Click to be redirected to a list of other providers of service',
@@ -38,7 +38,7 @@ export const titles = (language, thisTitle) => {
         },
         "HR_WAITLIST": {
             en: 'Wait_Time',
-            es: 'Espera_Hora'
+            es: 'Tiempo de sEspera'
         },
         "HR_PROCEED": {
             en: 'Proceed with application',
@@ -50,7 +50,7 @@ export const titles = (language, thisTitle) => {
         },
         "HR_SUBMITTED": {
             en: 'Your home repair request has been submitted',
-            es: 'Su solicitud de reparación de vivienda ha sido enviada'
+            es: 'Su solicitud de reparación de vivienda ha sido sometida'
         }, 
         "HR_SUBMITTEXT": {
             en: 'Please print this page for your records. You application ID is shown below:',
@@ -99,11 +99,11 @@ export const titles = (language, thisTitle) => {
         },  
         "QP_INCOME": {
             en: 'Maximum Income',
-            es: 'Renta máxima'
+            es: 'Ingreso máximo'
         },   
         "RL_BUTTON": {
             en: 'Select the needed repairs -> Click when Done',
-            es: 'Seleccione las reparaciones necesarias -> Haga clic cuando esté listo'
+            es: 'Seleccione las reparaciones necesarias -> Haga clic cuando haya terminado'
         },    
         "RL_ALERT": {
             en: 'You must select one or more repairs!',
@@ -115,7 +115,7 @@ export const titles = (language, thisTitle) => {
         }, 
         "CA_YOURNAME": {
             en: 'Your name',
-            es: 'Tu nombre'
+            es: 'Su nombre'
         }, 
         "CA_PHONE": {
             en: 'Phone',
@@ -151,7 +151,7 @@ export const titles = (language, thisTitle) => {
         },   
         "CA_GENMALE": {
             en: 'Male',
-            es: 'Masculino'
+            es: 'Hombre'
         }, 
         "CA_GENNA": {
             en: 'Rather not say',
@@ -159,23 +159,23 @@ export const titles = (language, thisTitle) => {
         },    
         "CA_MARITAL": {
             en: 'Marital Status',
-            es: 'Prefiero no decirlo'
+            es: 'Estado Civil'
         },  
         "CA_MSMARRIED": {
             en: 'Married',
-            es: 'Casada'
+            es: 'Casado/a'
         },  
         "CA_MSSINGLE": {
             en: 'Single',
-            es: 'Única'
+            es: 'Soltero/a'
         },  
         "CA_MSDIVORCED": {
             en: 'Divorced',
-            es: 'Divorciada'
+            es: 'Divorciado/a'
         },  
         "CA_MSSEPERATED": {
             en: 'Seperated',
-            es: 'Separadas'
+            es: 'Separado/a'
         },  
         "CA_MSWIDOWED": {
             en: 'Widowed',
@@ -207,7 +207,7 @@ export const titles = (language, thisTitle) => {
         },  
         "CA_MBCOASTGUARD": {
             en: 'Coast Guard',
-            es: 'Guardacostas'
+            es: 'Guardia Costera'
         },  
         "CA_MBNATIONALGUARD": {
             en: 'National Guard',
@@ -243,7 +243,7 @@ export const titles = (language, thisTitle) => {
         }, 
         "CA_LOTHELPER": {
             en: 'Mobile home or condo?',
-            es: '¿La dirección de su casa tiene un número de lote o unidad?'
+            es: '¿Casa mobil o condominio?'
         },         
         "CA_REPAIRS": {
             en: 'Please describe the repairs you are requesting.',
@@ -255,15 +255,15 @@ export const titles = (language, thisTitle) => {
         }, 
         "OT_HEADER": {
             en: 'List the members of the household (or type none)',
-            es: 'Enumere los miembros del hogar (o escriba ninguno)'
+            es: 'Liste los miembros del hogar (o escriba ninguno)'
         },         
         "OT_NAME": {
             en: 'Their Name *',
-            es: 'Su nombre *'
+            es: 'Nombre de ellos *'
         }, 
         "OT_AGE": {
             en: 'Their Age *',
-            es: 'Su edad *'
+            es: 'Edad de ellos *'
         }, 
         "OT_RELATION": {
             en: 'Relationship *',
